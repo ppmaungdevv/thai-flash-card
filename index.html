@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Cards</title>
+
+	<!-- <script src="./main.js" type="module" defer></script> -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+</head>
+<body>
+    <h3>Flash Cards</h3>
+    <div x-data="dropdown" x-init="random">
+        <template x-for="tc in thai_consonants">
+            <span x-text="tc"></span>
+        </template>
+        <br>
+        <span x-text="flash"></span>
+        <button x-on:click="random">Next</button>
+
+    </div>
+</body>
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('dropdown', () => ({
+            open: false,
+            thai_consonants: [
+                "ก", "ข", "ฃ", "ค", "ฅ", "ฆ", "ง", "จ", "ฉ", "ช", "ซ", "ฌ", "ญ", "ฎ", "ฏ", "ฐ", "ฑ", "ฒ", "ณ", "ด", "ต", "ถ", "ท", "ธ", "น", "บ", "ป", "ผ", "ฝ", "พ", "ฟ", "ภ", "ม", "ย", "ร", "ฤ", "ล", "ฦ", "ว", "ศ", "ษ", "ส", "ห", "ฬ", "อ", "ฮ"
+            ],
+            toggle() {
+                this.open = ! this.open
+            },
+            flash: '',
+            random() {
+                this.flash = this.thai_consonants[Math.floor(Math.random() * this.thai_consonants.length)];
+            }
+        }))
+    })
+</script>
+</html>
