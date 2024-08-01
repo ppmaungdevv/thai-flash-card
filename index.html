@@ -10,6 +10,10 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap" rel="stylesheet">
 
+    <!-- Include Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
 	<!-- tailwind CDN -->
 	<script src="https://cdn.tailwindcss.com"></script>
 
@@ -37,9 +41,14 @@
         </template> -->
         <!-- <br> -->
         <div>
-            <span id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></span>
-            <button id="read-btn" x-on:click="readText(flash.pronunciation)">Read</button>
+            <h2 class="text-3xl" id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></h2>
+            <br>
+            <button class="text-3xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
         </div>
+        <div>
+            <!-- <span x-text="random_num"></span> -->
+        </div>
+        <br>
         <button class="py-1 px-5 rounded bg-green-400 text-center" x-on:click="random">Next</button>
 
     </div>
@@ -55,58 +64,61 @@
                 "ก", "ข", "ฃ", "ค", "ฅ", "ฆ", "ง", "จ", "ฉ", "ช", "ซ", "ฌ", "ญ", "ฎ", "ฏ", "ฐ", "ฑ", "ฒ", "ณ", "ด", "ต", "ถ", "ท", "ธ", "น", "บ", "ป", "ผ", "ฝ", "พ", "ฟ", "ภ", "ม", "ย", "ร", "ฤ", "ล", "ฦ", "ว", "ศ", "ษ", "ส", "ห", "ฬ", "อ", "ฮ"
             ],
             thai_consonants_pro: [
-                { letter: 'ก', pronunciation: 'กอ ไก่' },
-                { letter: 'ข', pronunciation: 'ขอ ไข่' },
-                { letter: 'ฃ', pronunciation: 'ขอ ฃวด' },
-                { letter: 'ค', pronunciation: 'คอ ควาย' },
-                { letter: 'ฅ', pronunciation: 'คอ คน' },
-                { letter: 'ฆ', pronunciation: 'คอ ระฆัง' },
-                { letter: 'ง', pronunciation: 'งอ งู' },
-                { letter: 'จ', pronunciation: 'จอ จาน' },
-                { letter: 'ฉ', pronunciation: 'ฉอ ฉิ่ง' },
-                { letter: 'ช', pronunciation: 'ชอ ช้าง' },
-                { letter: 'ซ', pronunciation: 'ซอ โซ่' },
-                { letter: 'ฌ', pronunciation: 'ฌอ เฌอ' },
-                { letter: 'ญ', pronunciation: 'ญอ หญิง' },
-                { letter: 'ฎ', pronunciation: 'ฎอ ชฎา' },
-                { letter: 'ฏ', pronunciation: 'ฏอ ปฏัก' },
-                { letter: 'ฐ', pronunciation: 'ฐอ ฐาน' },
-                { letter: 'ฑ', pronunciation: 'ฑอ มณโฑ' },
-                { letter: 'ฒ', pronunciation: 'ฒอ ผู้เฒ่า' },
-                { letter: 'ณ', pronunciation: 'ณอ เณร' },
-                { letter: 'ด', pronunciation: 'ดอ เด็ก' },
-                { letter: 'ต', pronunciation: 'ตอ เต่า' },
-                { letter: 'ถ', pronunciation: 'ถอ ถุง' },
-                { letter: 'ท', pronunciation: 'ทอ ทหาร' },
-                { letter: 'ธ', pronunciation: 'ธอ ธง' },
-                { letter: 'น', pronunciation: 'นอ หนู' },
-                { letter: 'บ', pronunciation: 'บอ ใบไม้' },
-                { letter: 'ป', pronunciation: 'ปอ ปลา' },
-                { letter: 'ผ', pronunciation: 'ผอ ผึ้ง' },
-                { letter: 'ฝ', pronunciation: 'ฝอ ฝา' },
-                { letter: 'พ', pronunciation: 'พอ พาน' },
-                { letter: 'ฟ', pronunciation: 'ฟอ ฟัน' },
-                { letter: 'ภ', pronunciation: 'ภอ สำเภา' },
-                { letter: 'ม', pronunciation: 'มอ ม้า' },
-                { letter: 'ย', pronunciation: 'ยอ ยักษ์' },
-                { letter: 'ร', pronunciation: 'รอ เรือ' },
-                { letter: 'ล', pronunciation: 'ลอ ลิง' },
-                { letter: 'ว', pronunciation: 'วอ แหวน' },
-                { letter: 'ศ', pronunciation: 'ศอ ศาลา' },
-                { letter: 'ษ', pronunciation: 'ษอ ฤๅษี' },
-                { letter: 'ส', pronunciation: 'สอ เสือ' },
-                { letter: 'ห', pronunciation: 'หอ หีบ' },
-                { letter: 'ฬ', pronunciation: 'ฬอ จุฬา' },
-                { letter: 'อ', pronunciation: 'ออ อ่าง' },
-                { letter: 'ฮ', pronunciation: 'ฮอ นกฮูก' }
+                { letter: 'ก', pronunciation: 'กอไก่' },
+                { letter: 'ข', pronunciation: 'ขอไข่' },
+                { letter: 'ฃ', pronunciation: 'ขอฃวด' },
+                { letter: 'ค', pronunciation: 'คอควาย' },
+                { letter: 'ฅ', pronunciation: 'คอคน' },
+                { letter: 'ฆ', pronunciation: 'คอระฆัง' },
+                { letter: 'ง', pronunciation: 'งองู' },
+                { letter: 'จ', pronunciation: 'จอจาน' },
+                { letter: 'ฉ', pronunciation: 'ฉอฉิ่ง' },
+                { letter: 'ช', pronunciation: 'ชอช้าง' },
+                { letter: 'ซ', pronunciation: 'ซอโซ่' },
+                { letter: 'ฌ', pronunciation: 'ฌอเฌอ' },
+                { letter: 'ญ', pronunciation: 'ญอหญิง' },
+                { letter: 'ฎ', pronunciation: 'ฎอชฎา' },
+                { letter: 'ฏ', pronunciation: 'ฏอปฏัก' },
+                { letter: 'ฐ', pronunciation: 'ฐอฐาน' },
+                { letter: 'ฑ', pronunciation: 'ฑอมณโฑ' },
+                { letter: 'ฒ', pronunciation: 'ฒอผู้เฒ่า' },
+                { letter: 'ณ', pronunciation: 'ณอเณร' },
+                { letter: 'ด', pronunciation: 'ดอเด็ก' },
+                { letter: 'ต', pronunciation: 'ตอเต่า' },
+                { letter: 'ถ', pronunciation: 'ถอถุง' },
+                { letter: 'ท', pronunciation: 'ทอทหาร' },
+                { letter: 'ธ', pronunciation: 'ธอธง' },
+                { letter: 'น', pronunciation: 'นอหนู' },
+                { letter: 'บ', pronunciation: 'บอใบไม้' },
+                { letter: 'ป', pronunciation: 'ปอปลา' },
+                { letter: 'ผ', pronunciation: 'ผอผึ้ง' },
+                { letter: 'ฝ', pronunciation: 'ฝอฝา' },
+                { letter: 'พ', pronunciation: 'พอพาน' },
+                { letter: 'ฟ', pronunciation: 'ฟอฟัน' },
+                { letter: 'ภ', pronunciation: 'ภอสำเภา' },
+                { letter: 'ม', pronunciation: 'มอม้า' },
+                { letter: 'ย', pronunciation: 'ยอยักษ์' },
+                { letter: 'ร', pronunciation: 'รอเรือ' },
+                { letter: 'ล', pronunciation: 'ลอลิง' },
+                { letter: 'ว', pronunciation: 'วอแหวน' },
+                { letter: 'ศ', pronunciation: 'ศอศาลา' },
+                { letter: 'ษ', pronunciation: 'ษอฤๅษี' },
+                { letter: 'ส', pronunciation: 'สอเสือ' },
+                { letter: 'ห', pronunciation: 'หอหีบ' },
+                { letter: 'ฬ', pronunciation: 'ฬอจุฬา' },
+                { letter: 'อ', pronunciation: 'อออ่าง' },
+                { letter: 'ฮ', pronunciation: 'ฮอนกฮูก' }
             ],
             toggle() {
                 this.open = ! this.open
             },
             flash: {},
+            random_num: [],
             random() {
                 // this.flash = this.thai_consonants[Math.floor(Math.random() * this.thai_consonants.length)];
-                this.flash = this.thai_consonants_pro[Math.floor(Math.random() * this.thai_consonants.length)];
+                let ran = Math.floor(Math.random() * (this.thai_consonants.length - 1 ))//- 1
+                // this.random_num.push(ran)
+                this.flash = this.thai_consonants_pro[ran];
             },
             readText(t) {
                 if (!('speechSynthesis' in window)) {
