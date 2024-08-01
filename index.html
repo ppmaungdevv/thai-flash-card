@@ -5,19 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flash Cards</title>
 
+    <!-- Ubuntu font -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap" rel="stylesheet">
+
+	<!-- tailwind CDN -->
+	<script src="https://cdn.tailwindcss.com"></script>
+
 	<!-- <script src="./main.js" type="module" defer></script> -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- Red:
+    Hex: #A51931
+    RGB: 165, 25, 49
+    
+    White:
+    Hex: #FFFFFF
+    RGB: 255, 255, 255
+    
+    Blue:
+    Hex: #001A5D
+    RGB: 0, 26, 93 -->
+
 </head>
-<body>
-    <h3>Flash Cards</h3>
+<body class="bg-[#e3e3e3] text-center">
+    <h3 class="text-4xl p-5">Flash Cards</h3>
     <div x-data="dropdown" x-init="random">
-        <template x-for="tc in thai_consonants">
+        <!-- <template x-for="tc in thai_consonants">
             <span x-text="tc"></span>
-        </template>
-        <br>
-        <span x-text="flash"></span>
-        <button x-on:click="random">Next</button>
+        </template> -->
+        <!-- <br> -->
+        <div>
+            <span id="text-to-read" x-ref="text_to_read" x-text="flash + ' read'"></span>
+            <button id="read-btn" x-on:click="readText">Read</button>
+        </div>
+        <button class="py-1 px-5 rounded bg-green-400 text-center" x-on:click="random">Next</button>
 
     </div>
 </body>
@@ -34,6 +57,18 @@
             flash: '',
             random() {
                 this.flash = this.thai_consonants[Math.floor(Math.random() * this.thai_consonants.length)];
+            },
+            readText() {
+                console.log(this.$refs.text_to_read.textContent)
+                const text = this.$refs.text_to_read.textContent
+                console.log('gsasfg', text)
+                const speech = new SpeechSynthesisUtterance(text);
+                console.log(speech)
+                // Set the language to Thai if needed
+                speech.lang = 'th-TH';
+
+                // Speak the text
+                window.speechSynthesis.speak(speech);
             }
         }))
     })
