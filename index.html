@@ -37,33 +37,91 @@
         </template> -->
         <!-- <br> -->
         <div>
-            <span id="text-to-read" x-ref="text_to_read" x-text="flash"></span>
-            <button id="read-btn" x-on:click="readText">Read</button>
+            <span id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></span>
+            <button id="read-btn" x-on:click="readText(flash.pronunciation)">Read</button>
         </div>
         <button class="py-1 px-5 rounded bg-green-400 text-center" x-on:click="random">Next</button>
 
     </div>
 </body>
 <script>
+    window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
     document.addEventListener('alpine:init', () => {
         Alpine.data('dropdown', () => ({
             open: false,
             thai_consonants: [
                 "ก", "ข", "ฃ", "ค", "ฅ", "ฆ", "ง", "จ", "ฉ", "ช", "ซ", "ฌ", "ญ", "ฎ", "ฏ", "ฐ", "ฑ", "ฒ", "ณ", "ด", "ต", "ถ", "ท", "ธ", "น", "บ", "ป", "ผ", "ฝ", "พ", "ฟ", "ภ", "ม", "ย", "ร", "ฤ", "ล", "ฦ", "ว", "ศ", "ษ", "ส", "ห", "ฬ", "อ", "ฮ"
             ],
+            thai_consonants_pro: [
+                { letter: 'ก', pronunciation: 'กอ ไก่' },
+                { letter: 'ข', pronunciation: 'ขอ ไข่' },
+                { letter: 'ฃ', pronunciation: 'ขอ ฃวด' },
+                { letter: 'ค', pronunciation: 'คอ ควาย' },
+                { letter: 'ฅ', pronunciation: 'คอ คน' },
+                { letter: 'ฆ', pronunciation: 'คอ ระฆัง' },
+                { letter: 'ง', pronunciation: 'งอ งู' },
+                { letter: 'จ', pronunciation: 'จอ จาน' },
+                { letter: 'ฉ', pronunciation: 'ฉอ ฉิ่ง' },
+                { letter: 'ช', pronunciation: 'ชอ ช้าง' },
+                { letter: 'ซ', pronunciation: 'ซอ โซ่' },
+                { letter: 'ฌ', pronunciation: 'ฌอ เฌอ' },
+                { letter: 'ญ', pronunciation: 'ญอ หญิง' },
+                { letter: 'ฎ', pronunciation: 'ฎอ ชฎา' },
+                { letter: 'ฏ', pronunciation: 'ฏอ ปฏัก' },
+                { letter: 'ฐ', pronunciation: 'ฐอ ฐาน' },
+                { letter: 'ฑ', pronunciation: 'ฑอ มณโฑ' },
+                { letter: 'ฒ', pronunciation: 'ฒอ ผู้เฒ่า' },
+                { letter: 'ณ', pronunciation: 'ณอ เณร' },
+                { letter: 'ด', pronunciation: 'ดอ เด็ก' },
+                { letter: 'ต', pronunciation: 'ตอ เต่า' },
+                { letter: 'ถ', pronunciation: 'ถอ ถุง' },
+                { letter: 'ท', pronunciation: 'ทอ ทหาร' },
+                { letter: 'ธ', pronunciation: 'ธอ ธง' },
+                { letter: 'น', pronunciation: 'นอ หนู' },
+                { letter: 'บ', pronunciation: 'บอ ใบไม้' },
+                { letter: 'ป', pronunciation: 'ปอ ปลา' },
+                { letter: 'ผ', pronunciation: 'ผอ ผึ้ง' },
+                { letter: 'ฝ', pronunciation: 'ฝอ ฝา' },
+                { letter: 'พ', pronunciation: 'พอ พาน' },
+                { letter: 'ฟ', pronunciation: 'ฟอ ฟัน' },
+                { letter: 'ภ', pronunciation: 'ภอ สำเภา' },
+                { letter: 'ม', pronunciation: 'มอ ม้า' },
+                { letter: 'ย', pronunciation: 'ยอ ยักษ์' },
+                { letter: 'ร', pronunciation: 'รอ เรือ' },
+                { letter: 'ล', pronunciation: 'ลอ ลิง' },
+                { letter: 'ว', pronunciation: 'วอ แหวน' },
+                { letter: 'ศ', pronunciation: 'ศอ ศาลา' },
+                { letter: 'ษ', pronunciation: 'ษอ ฤๅษี' },
+                { letter: 'ส', pronunciation: 'สอ เสือ' },
+                { letter: 'ห', pronunciation: 'หอ หีบ' },
+                { letter: 'ฬ', pronunciation: 'ฬอ จุฬา' },
+                { letter: 'อ', pronunciation: 'ออ อ่าง' },
+                { letter: 'ฮ', pronunciation: 'ฮอ นกฮูก' }
+            ],
             toggle() {
                 this.open = ! this.open
             },
-            flash: '',
+            flash: {},
             random() {
-                this.flash = this.thai_consonants[Math.floor(Math.random() * this.thai_consonants.length)];
+                // this.flash = this.thai_consonants[Math.floor(Math.random() * this.thai_consonants.length)];
+                this.flash = this.thai_consonants_pro[Math.floor(Math.random() * this.thai_consonants.length)];
             },
-            readText() {
-                console.log(this.$refs.text_to_read.textContent)
+            readText(t) {
+                if (!('speechSynthesis' in window)) {
+                    console.error("Web Speech API not supported in this browser.");
+                    return;
+                }
+                // console.log(this.$refs.text_to_read.textContent)
                 const text = this.$refs.text_to_read.textContent
-                console.log('gsasfg', text)
-                const speech = new SpeechSynthesisUtterance(text);
-                console.log(speech)
+                // console.log('gsasfg', text)
+                // const speech = new SpeechSynthesisUtterance(text);
+                const speech = new SpeechSynthesisUtterance(t);
+
+                // console.log(speech)
+                // let voices = window.speechSynthesis.getVoices();
+                // console.log(voices.find(voice => voice.lang === 'th-TH'))
                 // Set the language to Thai if needed
                 speech.lang = 'th-TH';
 
