@@ -33,24 +33,26 @@
     RGB: 0, 26, 93 -->
 
 </head>
-<body class="bg-[#e3e3e3] text-center">
+<body class="bg-[#e3e3e3] text-[#2D2A4A] text-center">
     <h3 class="text-4xl p-5">Flash Cards</h3>
     <div x-data="dropdown" x-init="random">
         <!-- <template x-for="tc in thai_consonants">
             <span x-text="tc"></span>
         </template> -->
         <!-- <br> -->
-        <span x-text="thai_consonants_pro.length"></span>
-        <div>
-            <h2 class="text-3xl" id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></h2>
+        <!-- <span x-text="thai_consonants_pro.length"></span> -->
+        <!-- <div class="bg-yellow flex w-100"> -->
+            <div class="mx-auto rounded-lg bg-[#F4F5F8] p-5 w-2/3 md:w-1/4 border-2 border-solid border-[#A51931]">
+                <p class="text-7xl" id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></p>
+                <br>
+                <button class="text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
+            </div>
+            <!-- <div>
+                <span x-text="random_num"></span>
+            </div> -->
             <br>
-            <button class="text-3xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
-        </div>
-        <div>
-            <span x-text="random_num"></span>
-        </div>
-        <br>
-        <button class="py-1 px-5 rounded bg-green-400 text-center" x-on:click="random">Next</button>
+            <button class="py-1 px-5 rounded bg-[#F4F5F8] border-2 border-[#A51931] text-[#2D2A4A] text-center" x-on:click="random">Next</button>
+        <!-- </div> -->
 
     </div>
 </body>
