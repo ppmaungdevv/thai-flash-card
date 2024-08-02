@@ -40,13 +40,14 @@
             <span x-text="tc"></span>
         </template> -->
         <!-- <br> -->
+        <span x-text="thai_consonants_pro.length"></span>
         <div>
             <h2 class="text-3xl" id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></h2>
             <br>
             <button class="text-3xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
         </div>
         <div>
-            <!-- <span x-text="random_num"></span> -->
+            <span x-text="random_num"></span>
         </div>
         <br>
         <button class="py-1 px-5 rounded bg-green-400 text-center" x-on:click="random">Next</button>
@@ -113,11 +114,11 @@
                 this.open = ! this.open
             },
             flash: {},
-            random_num: [],
+            random_num: null,
             random() {
                 // this.flash = this.thai_consonants[Math.floor(Math.random() * this.thai_consonants.length)];
-                let ran = Math.floor(Math.random() * (this.thai_consonants.length - 1 ))//- 1
-                // this.random_num.push(ran)
+                let ran = Math.floor(Math.random() * (this.thai_consonants_pro.length))//- 1
+                this.random_num = ran
                 this.flash = this.thai_consonants_pro[ran];
             },
             readText(t) {
