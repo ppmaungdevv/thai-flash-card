@@ -36,23 +36,17 @@
 <body class="bg-[#e3e3e3] text-[#2D2A4A] text-center">
     <h3 class="text-4xl p-5">Flash Cards</h3>
     <div x-data="dropdown" x-init="random">
-        <!-- <template x-for="tc in thai_consonants">
-            <span x-text="tc"></span>
-        </template> -->
-        <!-- <br> -->
-        <!-- <span x-text="thai_consonants_pro.length"></span> -->
-        <!-- <div class="bg-yellow flex w-100"> -->
-            <div class="mx-auto rounded-lg bg-[#F4F5F8] p-5 w-2/3 md:w-1/4 border-2 border-solid border-[#A51931]">
-                <p class="text-7xl" id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></p>
-                <br>
-                <button class="text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
-            </div>
-            <!-- <div>
-                <span x-text="random_num"></span>
-            </div> -->
+        <div class="mx-auto rounded-lg bg-[#F4F5F8] p-5 w-2/3 md:w-1/4 border-2 border-solid border-[#A51931]">
+            <p class="text-7xl" id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></p>
             <br>
-            <button class="py-1 px-5 rounded bg-[#F4F5F8] border-2 border-[#A51931] text-[#2D2A4A] text-center" x-on:click="random">Next</button>
-        <!-- </div> -->
+            <button class="text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
+        </div>
+        <div>
+            <span x-text="random_num.length"></span>
+        </div>
+        <br>
+        <button class="py-1 px-5 rounded bg-[#F4F5F8] border-2 border-[#A51931] text-[#2D2A4A] text-center" x-show="show_next" x-on:click="random">Next</button>
+        <button class="py-1 px-5 rounded bg-[#F4F5F8] border-2 border-[#A51931] text-[#2D2A4A] text-center" x-show="show_restart" x-on:click="restart">Restart</button>
 
     </div>
 </body>
@@ -115,29 +109,44 @@
             toggle() {
                 this.open = ! this.open
             },
+            get show_next() {
+                return this.random_num.length < this.thai_consonants_pro.length
+            },
+            get show_restart() {
+                return this.random_num.length >= this.thai_consonants_pro.length
+            },
             flash: {},
-            random_num: null,
+            random_num: [],
+            // finished: [],
             random() {
-                // this.flash = this.thai_consonants[Math.floor(Math.random() * this.thai_consonants.length)];
-                let ran = Math.floor(Math.random() * (this.thai_consonants_pro.length))//- 1
-                this.random_num = ran
+                let ran = null;
+                do {
+                    if (this.random_num.length >= this.thai_consonants_pro.length) {
+                        console.error('All possible values are already in the array. Exiting to avoid infinite loop.');
+                        break; // Break to avoid infinite loop
+                    }
+                    ran = Math.floor(Math.random() * (this.thai_consonants_pro.length))
+                } while (this.random_num.includes(ran));
+                
+                if (this.random_num.length < this.thai_consonants_pro.length) {
+                    this.random_num.push(ran)
+                }
+
                 this.flash = this.thai_consonants_pro[ran];
+            },
+            restart() {
+                this.random_num = []
+                this.random()
             },
             readText(t) {
                 if (!('speechSynthesis' in window)) {
                     console.error("Web Speech API not supported in this browser.");
                     return;
                 }
-                // console.log(this.$refs.text_to_read.textContent)
+                
                 const text = this.$refs.text_to_read.textContent
-                // console.log('gsasfg', text)
-                // const speech = new SpeechSynthesisUtterance(text);
                 const speech = new SpeechSynthesisUtterance(t);
 
-                // console.log(speech)
-                // let voices = window.speechSynthesis.getVoices();
-                // console.log(voices.find(voice => voice.lang === 'th-TH'))
-                // Set the language to Thai if needed
                 speech.lang = 'th-TH';
 
                 // Speak the text
