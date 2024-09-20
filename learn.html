@@ -40,15 +40,129 @@
     </style>
 
 </head>
-<body class="bg-[#fbfcf8] text-[#2D2A4A] text-center min-h-[75vh] flex flex-col items-center justify-center">
+<body class="bg-[#fbfcf8] text-[#2D2A4A] text-center min-h-[75vh] flex flex-col items-center">
     <h3 class="text-4xl p-5 mb-10">Flash Cards Learn</h3>
-    <!-- <div class="bg-white border-[#A51931] w-2/3 md:w-1/4 mx-auto p-5 border-2 border-solid rounded-lg mb-4 hover:cursor-pointer">
-        <a class="text-2xl" href="learn.html">Learn</a>
+    <div x-data="learn_page_data" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 w-3/4 lg:2/3 mx-auto">
+        <template x-for="i in Math.ceil(thai_consonants_pro.length / 4)">
+            <div
+                @click="flipCard(i)"
+                :class="{'is-flipped': flippedCard === i}"
+                class="flip-card bg-white border-[#A51931] px-2 py-5 border-2 border-solid rounded-lg mb-4 hover:cursor-pointer h-[350px] md:h-[290px] flex items-center justify-center"
+            >
+                <div class="flip-card-inner">
+                    <!-- Front side -->
+                    <div class="flip-card-front">
+                        <h4 class="text-2xl">Learn <span class="text-[#A51931]" x-text="i * 4"></span> Consonants</h4>
+                    </div>
+                    <!-- Back side -->
+                    <div class="flip-card-back">
+                        <div class="flex flex-col items-center justify-end h-full">
+                            <div class="flex h-2/3 pt-2 justify-between flex-col">
+                                <button class="py-3 px-3 rounded bg-white border-2 border-[#A51931] text-[#2D2A4A] font-medium text-xl" @click="alert('lolo')">Learn <span class="text-[#A51931] underline font-bold">4 New</span> Consonants</button>
+                                <span class="underline font-medium">Revise <span class="text-[#A51931]" x-text="(i-1) * 4"></span> Consonants</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
-    <div class="bg-white border-[#A51931] w-2/3 md:w-1/4 mx-auto p-5 border-2 border-solid rounded-lg hover:cursor-pointer">
-        <a class="text-2xl" href="index.html">Challange</a>
-    </div> -->
 </body>
 <script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('learn_page_data', () => ({
+            parts: [5, 10, 25, 20, 25, 30, 35, 40, 44],
+            flippedCard: null,
+            flipCard(i) {
+                this.flippedCard = this.flippedCard === i ? null : i;
+            },
+            thai_consonants_pro: [
+                { letter: 'ก', pronunciation: 'กอไก่' },
+                { letter: 'ข', pronunciation: 'ขอไข่' },
+                { letter: 'ฃ', pronunciation: 'ขอฃวด' },
+                { letter: 'ค', pronunciation: 'คอควาย' },
+                { letter: 'ฅ', pronunciation: 'คอคน' },
+                { letter: 'ฆ', pronunciation: 'คอระฆัง' },
+                { letter: 'ง', pronunciation: 'งองู' },
+                { letter: 'จ', pronunciation: 'จอจาน' },
+                { letter: 'ฉ', pronunciation: 'ฉอฉิ่ง' },
+                { letter: 'ช', pronunciation: 'ชอช้าง' },
+                { letter: 'ซ', pronunciation: 'ซอโซ่' },
+                { letter: 'ฌ', pronunciation: 'ฌอเฌอ' },
+                { letter: 'ญ', pronunciation: 'ญอหญิง' },
+                { letter: 'ฎ', pronunciation: 'ฎอชฎา' },
+                { letter: 'ฏ', pronunciation: 'ฏอปฏัก' },
+                { letter: 'ฐ', pronunciation: 'ฐอฐาน' },
+                { letter: 'ฑ', pronunciation: 'ฑอมณโฑ' },
+                { letter: 'ฒ', pronunciation: 'ฒอผู้เฒ่า' },
+                { letter: 'ณ', pronunciation: 'ณอเณร' },
+                { letter: 'ด', pronunciation: 'ดอเด็ก' },
+                { letter: 'ต', pronunciation: 'ตอเต่า' },
+                { letter: 'ถ', pronunciation: 'ถอถุง' },
+                { letter: 'ท', pronunciation: 'ทอทหาร' },
+                { letter: 'ธ', pronunciation: 'ธอธง' },
+                { letter: 'น', pronunciation: 'นอหนู' },
+                { letter: 'บ', pronunciation: 'บอใบไม้' },
+                { letter: 'ป', pronunciation: 'ปอปลา' },
+                { letter: 'ผ', pronunciation: 'ผอผึ้ง' },
+                { letter: 'ฝ', pronunciation: 'ฝอฝา' },
+                { letter: 'พ', pronunciation: 'พอพาน' },
+                { letter: 'ฟ', pronunciation: 'ฟอฟัน' },
+                { letter: 'ภ', pronunciation: 'ภอสำเภา' },
+                { letter: 'ม', pronunciation: 'มอม้า' },
+                { letter: 'ย', pronunciation: 'ยอยักษ์' },
+                { letter: 'ร', pronunciation: 'รอเรือ' },
+                { letter: 'ล', pronunciation: 'ลอลิง' },
+                { letter: 'ว', pronunciation: 'วอแหวน' },
+                { letter: 'ศ', pronunciation: 'ศอศาลา' },
+                { letter: 'ษ', pronunciation: 'ษอฤๅษี' },
+                { letter: 'ส', pronunciation: 'สอเสือ' },
+                { letter: 'ห', pronunciation: 'หอหีบ' },
+                { letter: 'ฬ', pronunciation: 'ฬอจุฬา' },
+                { letter: 'อ', pronunciation: 'อออ่าง' },
+                { letter: 'ฮ', pronunciation: 'ฮอนกฮูก' }
+            ],
+            
+        }))
+    })
 </script>
+<style>
+    .flip-card {
+        perspective: 1000px;
+    }
+
+    .flip-card-inner {
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+        backface-visibility: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .flip-card-front {
+        z-index: 2;
+        transform: rotateY(0deg);
+    }
+
+    .flip-card-back {
+        transform: rotateY(180deg);
+    }
+
+    .is-flipped .flip-card-inner {
+        transform: rotateY(180deg);
+    }
+</style>
 </html>
