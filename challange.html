@@ -115,7 +115,7 @@
 <script>
     window.speechSynthesis.onvoiceschanged = () => {
             window.speechSynthesis.getVoices();
-        };
+    };
     document.addEventListener('alpine:init', () => {
         Alpine.data('dropdown', () => ({
             thai_consonants_pro: [
