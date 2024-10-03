@@ -182,11 +182,24 @@
                     console.error("Web Speech API not supported in this browser.");
                     return;
                 }
+
+                 // Check if speechSynthesis is paused or speaking
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                    console.log("Resumed speaking");
+                    return;
+                }
+
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                    console.log("Canceled ongoing speech to start a new one");
+                }
                 
-                const text = this.$refs.text_to_read.textContent
-                console.log(text)
+                // const text = this.$refs.text_to_read.textContent
+                // const text = this.$refs.text_to_read ? this.$refs.text_to_read.textContent : t;
+                // console.log(text)
                 const speech = new SpeechSynthesisUtterance(t);
-                alert(speech)
+                console.log(speech)
 
                 speech.lang = 'th-TH';
 
