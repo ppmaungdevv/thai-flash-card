@@ -93,9 +93,9 @@
                         <button class="px-3 hover:cursor-pointer" @click.stop="closeModal()"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <!-- letter -->
-                    <p class="text-7xl"><span x-text="flash.letter"></span></p>
+                    <p class="text-7xl"><span x-ref="text_to_read" x-text="flash.letter"></span></p>
                     <!-- speak button -->
-                    <button class="p-1 text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
+                    <button class="p-1 text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i><span x-text="flash.pronunciation"></span></button>
                     <!-- how to pronounce -->
                     <p class="text-lg">Lift the middle part of the tongue and touch the hard palate</p>
                     
@@ -175,6 +175,7 @@
                 this.reset()
             },
             readText(t) {
+                console.log(t)
                 if (!('speechSynthesis' in window)) {
                     console.error("Web Speech API not supported in this browser.");
                     return;
