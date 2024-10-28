@@ -120,9 +120,6 @@
     </div>
 </body>
 <script>
-    window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-    };
     document.addEventListener('alpine:init', () => {
         Alpine.data('learn_page_data', () => ({
             parts: [5, 10, 25, 20, 25, 30, 35, 40, 44],
@@ -174,37 +171,86 @@
             goBack() {
                 this.reset()
             },
-            readText(t) {
-                console.log(t)
-                if (!('speechSynthesis' in window)) {
-                    alert('error')
+            async fetchAudio(text){
 
-                    console.error("Web Speech API not supported in this browser.");
-                    return;
+                try {
+                    const cache_key = `audio_${text}`
+                    const cached_audio = localStorage.getItem(cache_key)
+                    if (cached_audio) {
+                        console.log('cache')
+                        const byte_characters = atob(cached_audio)
+                        const byte_numbers = new Array(byte_characters.length)
+                        for (let i = 0; i < byte_characters.length; i++) {
+                            byte_numbers[i] = byte_characters.charCodeAt(i)
+                        }
+                        const byteArray = new Uint8Array(byte_numbers)
+                        return new Blob([byteArray], { type: 'audio/mpeg' })
+                    }
+
+                    const req_data = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({text})
+                    }
+                    
+                    const local_link = "http://127.0.0.1:5000/test"
+                    const api_link = "https://flash-card-api-6bei.onrender.com/test" // hosted on render
+                    
+                    // const resp = await fetch(local_link, req_data)
+                    const resp = await fetch(vercel_link, req_data)
+
+                    const blob = await resp.blob()
+
+                    const file_reader = new FileReader()
+                    file_reader.readAsDataURL(blob)
+                    file_reader.onloadend = function() {
+                        const base64data = file_reader.result.split(",")[1]; // Remove the prefix
+                        localStorage.setItem(cache_key, base64data); // Cache in localStorage
+                    }
+
+                    return blob
+                } catch (error) {
+                    console.error("There was an error!", error)
                 }
 
-                 // Check if speechSynthesis is paused or speaking
-                if (window.speechSynthesis.paused) {
-                    window.speechSynthesis.resume();
-                    console.log("Resumed speaking");
-                    return;
-                }
-
-                if (window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                    console.log("Canceled ongoing speech to start a new one");
-                }
                 
-                // const text = this.$refs.text_to_read.textContent
-                // const text = this.$refs.text_to_read ? this.$refs.text_to_read.textContent : t;
-                // console.log(text)
-                const speech = new SpeechSynthesisUtterance(t);
-                console.log(speech)
+            },
 
-                speech.lang = 'th-TH';
+            async readText(text) {
+                const blob = await this.fetchAudio(text)
 
-                // Speak the text
-                window.speechSynthesis.speak(speech);
+                const audioUrl = URL.createObjectURL(blob);
+                const audio = new Audio(audioUrl);
+                audio.play();
+
+                // url = window.location.href
+                // local_link = "http://127.0.0.1:5000/test"
+                // ngrok_link = "https://2286-171-6-89-213.ngrok-free.app"
+                
+                // fetch(ngrok_link + '/test', {
+                // fetch(local_link, {
+
+                    
+                //     method: "POST",
+                //     headers: {
+                //         "Content-Type": "application/json"
+                //     },
+                //     body: JSON.stringify({text})
+                // })
+                // .then(response => {
+                //     if (!response.ok) throw new Error("Network response was not OK");
+                //     console.log(response.body)
+                //     return response.blob();
+                // })
+                // .then(blob => {
+                //     const audioUrl = URL.createObjectURL(blob);
+                //     console.log('audio', audioUrl)
+                //     const audio = new Audio(audioUrl);
+                //     audio.play();
+                // })
+                // .catch(error => console.error("There was an error!", error));
             },
             thai_consonants_pro: [
                 { letter: 'ก', pronunciation: 'กอไก่' },
