@@ -43,17 +43,23 @@
             left: 0;
             top: 0;
             width: 100%;
-            height: 100%;
+            /* height: 100%; */
+            height: 100dvh;
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */   
+        }
+        .overflow-hidden {
+            overflow: hidden;
+            background-color: red;
         }
     </style>
 
 </head>
-<body class="bg-[#fbfcf8] text-[#2D2A4A] text-center min-h-[75vh] flex flex-col items-center">
+<body x-data="learn_page_data" class="bg-[#fbfcf8] text-[#2D2A4A] text-center min-h-[75vh] flex flex-col items-center" :class="{ 'overflow-hidden': show_modal}">
     <h3 class="text-4xl p-5 mb-10">Flash Cards Learn</h3>
-    <div x-data="learn_page_data" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 w-3/4 lg:2/3 mx-auto">
-        <template x-for="i in Math.ceil(thai_consonants_pro.length / 4)">
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 w-3/4 lg:2/3 mx-auto">
+        <!-- <template x-for="i in Math.ceil(thai_consonants.length / 4)"> -->
+        <template x-for="i in Math.ceil(thai_consonants.length / 4)">
             <div
                 @click="flipCard(i)"
                 :class="{'is-flipped': flipped_card === i}"
@@ -97,7 +103,7 @@
                     <!-- speak button -->
                     <button class="p-1 text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
                     <!-- how to pronounce -->
-                    <p class="text-lg">Lift the middle part of the tongue and touch the hard palate</p>
+                    <p class="text-lg"><span x-text="flash.instructions"></span></p>
                     
                     <div class="flex justify-between w-full gap-3 px-3">
                         <div>
@@ -122,6 +128,20 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('learn_page_data', () => ({
+            page_load: false,
+            thai_consonants: [],
+            async init() {
+                try {
+                    // const resp = await fetch("./thai.json")
+                    // const { thai_consonants } = await resp.json()
+                    // this.thai_consonants = thai_consonants
+                    const resp = await fetch("./thai_consonants.json")
+                    this.thai_consonants = await resp.json()
+                    console.log(this.thai_consonants[0].instructions)
+                } catch (error) {
+                    console.error(error)
+                }
+            },
             parts: [5, 10, 25, 20, 25, 30, 35, 40, 44],
             flipped_card: null,
             show_letter: false,
@@ -146,15 +166,16 @@
                 this.flipped_card = this.flipped_card === i ? null : i;
             },
             learn(index) {
-                this.sliced_consonants = this.thai_consonants_pro.slice((index * 4), ((index * 4) + 4))
+                this.sliced_consonants = this.thai_consonants.slice((index * 4), ((index * 4) + 4))
                 this.flash = this.sliced_consonants[0]
                 this.last_page = this.sliced_consonants.length - 1
                 this.show_modal = true
+
                 // alert( (from * 4) + ' ' + ((from * 4) + 3))
                 console.log(this.sliced_consonants)
             },
             revise(index) {
-                this.sliced_consonants = this.thai_consonants_pro.slice(0, (index - 1) * 4)
+                this.sliced_consonants = this.thai_consonants.slice(0, (index - 1) * 4)
                 this.flash = this.sliced_consonants[0]
                 this.last_page = this.sliced_consonants.length - 1
                 this.show_modal = true
@@ -252,7 +273,7 @@
                 // })
                 // .catch(error => console.error("There was an error!", error));
             },
-            thai_consonants_pro: [
+            thai_consonants: [
                 { letter: 'ก', pronunciation: 'กอไก่' },
                 { letter: 'ข', pronunciation: 'ขอไข่' },
                 { letter: 'ฃ', pronunciation: 'ขอฃวด' },

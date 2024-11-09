@@ -118,52 +118,7 @@
     };
     document.addEventListener('alpine:init', () => {
         Alpine.data('dropdown', () => ({
-            thai_consonants_pro: [
-                { letter: 'ก', pronunciation: 'กอไก่' },
-                { letter: 'ข', pronunciation: 'ขอไข่' },
-                { letter: 'ฃ', pronunciation: 'ขอฃวด' },
-                { letter: 'ค', pronunciation: 'คอควาย' },
-                { letter: 'ฅ', pronunciation: 'คอคน' },
-                { letter: 'ฆ', pronunciation: 'คอระฆัง' },
-                { letter: 'ง', pronunciation: 'งองู' },
-                { letter: 'จ', pronunciation: 'จอจาน' },
-                { letter: 'ฉ', pronunciation: 'ฉอฉิ่ง' },
-                { letter: 'ช', pronunciation: 'ชอช้าง' },
-                { letter: 'ซ', pronunciation: 'ซอโซ่' },
-                { letter: 'ฌ', pronunciation: 'ฌอเฌอ' },
-                { letter: 'ญ', pronunciation: 'ญอหญิง' },
-                { letter: 'ฎ', pronunciation: 'ฎอชฎา' },
-                { letter: 'ฏ', pronunciation: 'ฏอปฏัก' },
-                { letter: 'ฐ', pronunciation: 'ฐอฐาน' },
-                { letter: 'ฑ', pronunciation: 'ฑอมณโฑ' },
-                { letter: 'ฒ', pronunciation: 'ฒอผู้เฒ่า' },
-                { letter: 'ณ', pronunciation: 'ณอเณร' },
-                { letter: 'ด', pronunciation: 'ดอเด็ก' },
-                { letter: 'ต', pronunciation: 'ตอเต่า' },
-                { letter: 'ถ', pronunciation: 'ถอถุง' },
-                { letter: 'ท', pronunciation: 'ทอทหาร' },
-                { letter: 'ธ', pronunciation: 'ธอธง' },
-                { letter: 'น', pronunciation: 'นอหนู' },
-                { letter: 'บ', pronunciation: 'บอใบไม้' },
-                { letter: 'ป', pronunciation: 'ปอปลา' },
-                { letter: 'ผ', pronunciation: 'ผอผึ้ง' },
-                { letter: 'ฝ', pronunciation: 'ฝอฝา' },
-                { letter: 'พ', pronunciation: 'พอพาน' },
-                { letter: 'ฟ', pronunciation: 'ฟอฟัน' },
-                { letter: 'ภ', pronunciation: 'ภอสำเภา' },
-                { letter: 'ม', pronunciation: 'มอม้า' },
-                { letter: 'ย', pronunciation: 'ยอยักษ์' },
-                { letter: 'ร', pronunciation: 'รอเรือ' },
-                { letter: 'ล', pronunciation: 'ลอลิง' },
-                { letter: 'ว', pronunciation: 'วอแหวน' },
-                { letter: 'ศ', pronunciation: 'ศอศาลา' },
-                { letter: 'ษ', pronunciation: 'ษอฤๅษี' },
-                { letter: 'ส', pronunciation: 'สอเสือ' },
-                { letter: 'ห', pronunciation: 'หอหีบ' },
-                { letter: 'ฬ', pronunciation: 'ฬอจุฬา' },
-                { letter: 'อ', pronunciation: 'อออ่าง' },
-                { letter: 'ฮ', pronunciation: 'ฮอนกฮูก' }
-            ],
+            thai_consonants: [],
             consonant_count: 3,
             show_next: true,
             show_restart: false,
@@ -173,20 +128,30 @@
             random_num: [],
             selected_shuffle: 'random',
             sliced_consonants: [],
+            async init() {
+                try {
+                    const resp = await fetch("./thai.json")
+                    const { thai_consonants } = await resp.json()
+                    this.thai_consonants = thai_consonants
+                    console.log(this.thai_consonants)
+                } catch (error) {
+                    console.error(error)
+                }
+            },
             random() {
                 let ran = null;
                 do {
-                    // if (this.random_num.length >= this.thai_consonants_pro.length) {
+                    // if (this.random_num.length >= this.thai_consonants.length) {
                     if (this.random_num.length >= this.sliced_consonants.length) {
                         console.error('All possible values are already in the array. Exiting to avoid infinite loop.');
                         break; // Break to avoid infinite loop
                     }
-                    // ran = Math.floor(Math.random() * (this.thai_consonants_pro.length))
+                    // ran = Math.floor(Math.random() * (this.thai_consonants.length))
                     ran = Math.floor(Math.random() * (this.sliced_consonants.length))
 
                 } while (this.random_num.includes(ran));
                 
-                // if (this.random_num.length < this.thai_consonants_pro.length) {
+                // if (this.random_num.length < this.thai_consonants.length) {
                 if (this.random_num.length < this.sliced_consonants.length) {
 
                     this.random_num.push(ran)
@@ -194,21 +159,21 @@
 
                 this.toggleButton()
                 this.flash = this.sliced_consonants[ran]
-                // this.flash = this.thai_consonants_pro[ran];
+                // this.flash = this.thai_consonants[ran];
 
                 this.loading = false
                 this.show_cards = true
 
             },
             toggleButton() {
-                // if (this.random_num.length < this.thai_consonants_pro.length) {
+                // if (this.random_num.length < this.thai_consonants.length) {
                 if (this.random_num.length < this.sliced_consonants.length) {
                     this.show_restart = false;
                     setTimeout(() => {
                         this.show_next = true;
                     }, 300);
                 }
-                // if (this.random_num.length >= this.thai_consonants_pro.length) {
+                // if (this.random_num.length >= this.thai_consonants.length) {
                 if (this.random_num.length >= this.sliced_consonants.length) {
                     this.show_next = false
                     setTimeout(() => {
@@ -228,14 +193,14 @@
                 }
                 if(this.selected_shuffle == 'random') {
                     while (indexes_to_slice.length < this.consonant_count) {
-                        let ran = Math.floor(Math.random() * (this.thai_consonants_pro.length))
+                        let ran = Math.floor(Math.random() * (this.thai_consonants.length))
                         if (!indexes_to_slice.includes(ran)) {
                             indexes_to_slice.push(ran)
                         }
                     }
-                    this.sliced_consonants = indexes_to_slice.map(ele => this.thai_consonants_pro[ele])
+                    this.sliced_consonants = indexes_to_slice.map(ele => this.thai_consonants[ele])
                 } else {
-                    this.sliced_consonants = this.thai_consonants_pro.slice(0, this.consonant_count)
+                    this.sliced_consonants = this.thai_consonants.slice(0, this.consonant_count)
                 }
 
                 setTimeout(() => {
