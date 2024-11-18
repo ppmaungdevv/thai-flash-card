@@ -42,14 +42,24 @@
 </head>
 <body class="bg-[#fbfcf8] text-[#2D2A4A] text-center min-h-[75vh] flex flex-col items-center justify-center">
     <h3 class="text-4xl p-5 mb-10">Flash Cards</h3>
-    <a href="learn.html" class="bg-white border-[#A51931] w-2/3 md:w-1/4 mx-auto p-5 border-2 border-solid rounded-lg mb-4 hover:cursor-pointer">
-        <h4 class="text-2xl">Learn</h4>
-        <!-- <a></a> -->
-    </a>
-    <a href="challange.html" class="bg-white border-[#A51931] w-2/3 md:w-1/4 mx-auto p-5 border-2 border-solid rounded-lg hover:cursor-pointer">
-        <h4 class="text-2xl">Challange</h4>
-    </a>
+    <div class="flex flex-col gap-5 w-full">
+        <a href="learn.html" class="bg-white border-[#A51931] w-2/3 md:w-1/4 mx-auto p-3 border-2 border-solid rounded-lg hover:cursor-pointer flex justify-between items-center">
+            <div class="p-1"><h4 class="text-2xl">Lessons</h4></div>
+            <div class=""><i class="text-lg ml-2 fa-solid fa-angle-right"></i></div>
+        </a>
+        <a href="challange.html" class="bg-white border-[#A51931] w-2/3 md:w-1/4 mx-auto p-3 border-2 border-solid rounded-lg hover:cursor-pointer flex justify-between items-center">
+            <div class="p-1"><h4 class="text-2xl">Challange</h4></div>
+            <div class=""><i class="text-lg ml-2 fa-solid fa-angle-right"></i></div>
+        </a>
+    </div>
 </body>
-<script>
+<script type="module">
+
+import { getDataFromJSON } from './fuctions.js'
+getDataFromJSON("./thai_consonants.json").then(data => {
+    console.log(data)
+})
+
+// fetch_data()
 </script>
 </html>

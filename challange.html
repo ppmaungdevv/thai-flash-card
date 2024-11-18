@@ -42,21 +42,31 @@
 </head>
 <body class="bg-[#fbfcf8] text-[#2D2A4A] text-center">
     <h3 class="text-4xl p-5">Flash Cards</h3>
-    <div class="mb-5" x-data="dropdown">
-        <div class="mb-5 w-2/3 md:w-1/4 mx-auto flex flex-col items-center space-y-4">
-            <label for="word_count" class="sr-only">Number of Consonants</label>
-            <input type="number" name="word_count" id="" class="w-1/2 rounded border-2 border-solid border-[#A51931] p-2 text-center" x-model="consonant_count">
-            <fieldset class="flex items-center space-x-4 p-2">
-                <legend class="sr-only">Shuffle Options</legend>
-                <label class="flex items-center" for="random">
-                    <input id="random" class="mr-1" type="radio" value="random" x-model="selected_shuffle"> Random
-                </label>
-                <label for="alpha" class="flex items-center">
-                    <input id="alpha" class="mr-1" type="radio" value="alpha" x-model="selected_shuffle"> Alphabetical
-                </label>
-            </fieldset>
-            <button class="py-1 px-5 rounded bg-white border-2 border-[#A51931] text-[#2D2A4A] text-center" @click="generate">Generate</button>
+    <!-- <div class="mb-5" x-data="dropdown"> -->
+    <div class="flex flex-col justify-between gap-3" x-data="dropdown">
+    
+        <!-- <div class="w-2/3 md:w-1/4 mx-auto flex flex-col items-center space-y-4"> -->
+        <div class="w-4/5 md:w-1/4 mx-auto flex flex-col items-center justify-between gap-5 py-3 rounded-lg bg-white border-[#A51931] shadow-lg">
+            <div class="grid grid-cols-2 w-2/3 mx-auto items-center">
+                <div class="">
+                    <label for="word_count" class="sr-only">Number of Consonants</label>
+                    <input type="number" name="word_count" id="" class="w-2/3 rounded border-2 border-solid border-[#A51931] py-1 text-center" x-model="consonant_count">
+                </div>
+                <fieldset class="flex items-center space-x-4 p-2">
+                    <legend class="sr-only">Shuffle Options</legend>
+                    <label class="flex items-center hover:cursor-pointer" for="random">
+                        <input id="random" class="mr-1" type="checkbox" value="random" x-model="selected_shuffle"> Random
+                    </label>
+                    <!-- <label for="alpha" class="flex items-center">
+                        <input id="alpha" class="mr-1" type="radio" value="alpha" x-model="selected_shuffle"> Alphabetical
+                    </label> -->
+                </fieldset>
+            </div>
+            <!-- <button class="py-1 px-5 rounded bg-white border-2 border-[#A51931] text-[#2D2A4A] text-center" @click="generate">Generate</button> -->
+            <button class="py-1 px-5 rounded bg-[#2D2A4A] text-white text-center" @click="generate">Generate</button>
+            
         </div>
+        
         <!-- card -->
         <div x-show="show_cards && !loading" 
         x-transition:enter="transition duration-500"
@@ -65,7 +75,7 @@
         x-transition:leave="transition duration-500"
         x-transition:leave-start="opacity-100 transform scale-100"
         x-transition:leave-end="opacity-0 transform scale-98"
-        class="flex flex-col justify-center items-center mx-auto rounded-lg bg-white p-5 w-2/3 md:w-1/4 border-2 border-solid border-[#A51931] h-[350px]">
+        class="flex flex-col justify-between items-center mx-auto rounded-lg p-2 w-4/5 md:w-1/4 border-2 border-solid border-[#A51931] min-h-[400px] bg-white shadow-lg">
                 <p 
                 style="transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);"
                 x-show="!loading"
@@ -76,22 +86,80 @@
                 x-transition:leave-start="opacity-100 transform scale-100"
                 x-transition:leave-end="opacity-0 transform scale-98"
                 class="text-7xl" id="text-to-read" x-ref="text_to_read" x-text="flash.letter"></p>
-                <button 
-                style="transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);"
-                x-show="!loading"
-                x-transition:enter="transition duration-500"
-                x-transition:enter-start="opacity-0 transform scale-98"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition duration-500"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-98"
-                class="mt-10 p-1 text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
+                <div class="tabular-nums w-full p-2 flex items-center justify-between rounded border-2" :class="is_correct ? 'border-green-300 bg-green-100' : ' border-red-300 bg-red-100' " x-show="show_result">
+                    <p class="text-lg" :class="is_correct ? 'text-green-600' : 'text-red-500' ">
+                        <span x-show="is_correct">Correct</span>
+                        <span x-show="!is_correct">The correct answer is <span x-text="correct_answer"></span>.</span>
+                    </p>
+                    <p class="text-2xl">
+                        <i x-show="is_correct" class="text-green-600 fa-regular fa-circle-check"></i>
+                        <i x-show="!is_correct" class="text-red-500 fa-regular fa-circle-xmark"></i>
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-5 w-full">
+                    <template x-for="i in 4">
+                        <div class="flex items-center justify-center p-4 rounded border-2 border-solid hover:cursor-pointer relative" :class="[i == selected_answer ? selected_border_style : '', i == correct_answer ? correct_border_style : '' ]" @click.stop="speakAnswer(i)">
+                             <!-- if click speak and select answer -->
+                            <div class="top-0 left-0 absolute ml-1">
+                                <p class="p-1" x-text="i+'.'"></p>
+                            </div>
+                            <p x-show="!loading" class="p-1 text-2xl" id="read-btn" ><i class="fas fa-volume-up"></i></p>
+                        </div>
+                    </template>
+                </div>
+                <template x-if="!enable_chk_ans_btn">
+                    <div class="flex justify-center items-center rounded w-full" :class="(!enable_chk_ans_btn && !show_next_btn) ? 'p-6' : 'p-1'">
+                        <button 
+                        x-show="show_next_btn"
+                        x-transition:enter="transition duration-500"
+                        x-transition:enter-start="opacity-0 transform scale-98"
+                        x-transition:enter-end="opacity-100 transform scale-100"
+                        x-transition:leave="transition duration-500"
+                        x-transition:leave-start="opacity-100 transform scale-100"
+                        x-transition:leave-end="opacity-0 transform scale-98"
+                        class="flex justify-center items-center rounded py-1 px-3 border-2 border-[#2D2A4A] hover:cursor-pointer" @click.stop="next()">Next<span class="ml-1"><i class="fa-solid fa-angle-right"></i></span></button>
+                    </div>
+                </template>
+                    <!-- <template x-if="enable_chk_ans_btn"> -->
+                        <!-- x-transition:leave="transition duration-500"
+                        x-transition:leave-start="opacity-100 transform scale-100"
+                        x-transition:leave-end="opacity-0 transform scale-98" -->
+                        <button 
+                        x-show="enable_chk_ans_btn"
+                        x-transition:enter="transition duration-500"
+                        x-transition:enter-start="opacity-0 transform scale-98"
+                        x-transition:enter-end="opacity-100 transform scale-100"
+                        class="flex justify-center rounded w-full p-3" :class=" enable_chk_ans_btn ? 'bg-[#2D2A4A] text-white' : 'bg-[#B3B3CC] text-gray-400' " @click.stop="checkAnswer()">Check Answer</button>
+                        <!-- next btn -->
+                        <!-- <div class="flex">
+
+                        </div> -->
+                        <!-- <button 
+                        x-show="show_next_btn"
+                        x-transition:enter="transition duration-500"
+                        x-transition:enter-start="opacity-0 transform scale-98"
+                        x-transition:enter-end="opacity-100 transform scale-100"
+                        x-transition:leave="transition duration-500"
+                        x-transition:leave-start="opacity-100 transform scale-100"
+                        x-transition:leave-end="opacity-0 transform scale-98"
+                        class="flex justify-center items-center rounded py-1 px-3 border-2 border-[#2D2A4A] hover:cursor-pointer" @click.stop="next()">Next<span class="ml-1"><i class="fa-solid fa-angle-right"></i></span></button> -->
+                    <!-- </template> -->
+                <!-- <div class="flex justify-center rounded w-full p-3" :class=" enable_chk_ans_btn ? 'bg-blue-200' : 'bg-[#E0E0E0] text-gray-600' "> -->
+                    <!-- x-if="current_page < last_page" -->
+                    <!-- <template > -->
+                        <!-- if click check answer and show next if there is next -->
+                        <!-- <button class="font-medium hover:cursor-pointer" @click.stop="checkAnswer(i)">Check Answer</button> -->
+                        <!-- next btn -->
+                        <!-- <button class="font-medium hover:cursor-pointer" @click.stop="next()">Next</button> -->
+                    <!-- </template> -->
+                <!-- </div> -->
         </div>
-        <div class="mt-2 tabular-nums" x-show="show_cards">
+        <a href="index.html" class="text-2xl p-1"><i class="fa-solid fa-house"></i></a>
+        <!-- <div class="pt-2 tabular-nums" x-show="show_cards">
             Shffule <span x-text="random_num.length"></span>/<span x-text="consonant_count"></span> consonants by <span class="" x-text="selected_shuffle == 'random' ? 'Randomly' : 'Alphabetically' "></span>
         </div>
-        <br>
-        <button
+        <br> -->
+        <!-- <button
             style="transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);"
             x-transition:enter="transition duration-300"
             x-transition:enter-start="opacity-0 transform scale-98"
@@ -108,7 +176,7 @@
             x-transition:leave="transition duration-300"
             x-transition:leave-start="opacity-100 transform scale-100"
             x-transition:leave-end="opacity-0 transform scale-98"
-            class="py-1 px-5 rounded bg-white border-2 border-[#A51931] text-[#2D2A4A] text-center" x-show="show_cards && show_restart" x-on:click="restart">Restart</button>
+            class="py-1 px-5 rounded bg-white border-2 border-[#A51931] text-[#2D2A4A] text-center" x-show="show_cards && show_restart" x-on:click="restart">Restart</button> -->
 
     </div>
 </body>
@@ -128,6 +196,15 @@
             random_num: [],
             selected_shuffle: 'random',
             sliced_consonants: [],
+            answer: null,
+            show_result: false,
+            enable_chk_ans_btn: false,
+            show_next_btn: false,
+            selected_answer: null,
+            correct_answer: 4,
+            is_correct: null,
+            selected_border_style: '',
+            correct_border_style: '',
             async init() {
                 try {
                     const resp = await fetch("./thai.json")
@@ -141,39 +218,32 @@
             random() {
                 let ran = null;
                 do {
-                    // if (this.random_num.length >= this.thai_consonants.length) {
                     if (this.random_num.length >= this.sliced_consonants.length) {
                         console.error('All possible values are already in the array. Exiting to avoid infinite loop.');
                         break; // Break to avoid infinite loop
                     }
-                    // ran = Math.floor(Math.random() * (this.thai_consonants.length))
                     ran = Math.floor(Math.random() * (this.sliced_consonants.length))
 
                 } while (this.random_num.includes(ran));
                 
-                // if (this.random_num.length < this.thai_consonants.length) {
                 if (this.random_num.length < this.sliced_consonants.length) {
-
                     this.random_num.push(ran)
                 }
 
                 this.toggleButton()
                 this.flash = this.sliced_consonants[ran]
-                // this.flash = this.thai_consonants[ran];
 
                 this.loading = false
                 this.show_cards = true
 
             },
             toggleButton() {
-                // if (this.random_num.length < this.thai_consonants.length) {
                 if (this.random_num.length < this.sliced_consonants.length) {
                     this.show_restart = false;
                     setTimeout(() => {
                         this.show_next = true;
                     }, 300);
                 }
-                // if (this.random_num.length >= this.thai_consonants.length) {
                 if (this.random_num.length >= this.sliced_consonants.length) {
                     this.show_next = false
                     setTimeout(() => {
@@ -207,9 +277,41 @@
                     this.random();
                 }, 300);
             },
-
+            speakAnswer(index) {
+                // play audio file
+                // assign index to answer
+                // enable check answer btn
+                this.selected_border_style = 'border-[#2D2A4A]'
+                this.enable_chk_ans_btn = true
+                this.selected_answer = index
+            },
+            checkAnswer() {
+                // check the selected answer
+                // show the right/wrong result on top
+                // show next btn
+                this.enable_chk_ans_btn = false
+                if (this.correct_answer == this.selected_answer) {
+                    this.is_correct = true
+                    this.selected_border_style = 'border-green-300'
+                } else {
+                    this.is_correct = false
+                    this.selected_border_style = 'border-red-500'
+                }
+                this.correct_border_style = 'border-green-500'
+                this.show_result = true
+                this.show_next_btn = true
+            },
             next() {
+                console.log('first')
                 this.loading = true
+                this.show_result = false
+                this.enable_chk_ans_btn = false
+                this.show_next_btn = false
+                this.selected_answer = null
+                // this.correct_answer = 4
+                this.is_correct = null
+                this.selected_border_style = ''
+                this.correct_border_style = ''
                 setTimeout(() => {
                     this.random();
                 }, 300);

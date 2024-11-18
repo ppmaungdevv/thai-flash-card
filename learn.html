@@ -56,7 +56,8 @@
 
 </head>
 <body x-data="learn_page_data" class="bg-[#fbfcf8] text-[#2D2A4A] text-center min-h-[75vh] flex flex-col items-center" :class="{ 'overflow-hidden': show_modal}">
-    <h3 class="text-4xl p-5 mb-10">Flash Cards Learn</h3>
+    <h3 class="text-4xl p-5 mb-1">Flash Cards Learn</h3>
+    <a href="index.html" class="text-2xl mb-5"><i class="fa-solid fa-house"></i></a>
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 w-3/4 lg:2/3 mx-auto">
         <!-- <template x-for="i in Math.ceil(thai_consonants.length / 4)"> -->
         <template x-for="i in Math.ceil(thai_consonants.length / 4)">
@@ -108,12 +109,12 @@
                     <div class="flex justify-between w-full gap-3 px-3">
                         <div>
                             <template x-if="current_page > 0">
-                                <button class="underline font-medium hover:cursor-pointer" @click.stop="previous()">Prev</button>
+                                <button class="underline font-medium items-center hover:cursor-pointer" @click.stop="previous()"><i class="mr-1 fa-solid fa-angle-left"></i>Prev</button>
                             </template>
                         </div>
                         <div>
                             <template x-if="current_page < last_page">
-                                <button class="underline font-medium hover:cursor-pointer" @click.stop="next()">Next</button>
+                                <button class="underline items-center font-medium hover:cursor-pointer" @click.stop="next()">Next<i class="ml-1 fa-solid fa-angle-right"></i></button>
                             </template>
                         </div>
                     </div>
@@ -137,7 +138,6 @@
                     // this.thai_consonants = thai_consonants
                     const resp = await fetch("./thai_consonants.json")
                     this.thai_consonants = await resp.json()
-                    console.log(this.thai_consonants[0].instructions)
                 } catch (error) {
                     console.error(error)
                 }
@@ -160,6 +160,7 @@
             closeModal() {
                 this.reset()
                 this.show_modal = false
+                localStorage.clear()
             },
             flipCard(i) {
                 this.reset()
@@ -170,9 +171,6 @@
                 this.flash = this.sliced_consonants[0]
                 this.last_page = this.sliced_consonants.length - 1
                 this.show_modal = true
-
-                // alert( (from * 4) + ' ' + ((from * 4) + 3))
-                console.log(this.sliced_consonants)
             },
             revise(index) {
                 this.sliced_consonants = this.thai_consonants.slice(0, (index - 1) * 4)
