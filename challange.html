@@ -42,27 +42,20 @@
 </head>
 <body class="bg-[#fbfcf8] text-[#2D2A4A] text-center">
     <h3 class="text-4xl p-5">Flash Cards</h3>
-    <!-- <div class="mb-5" x-data="dropdown"> -->
-    <div class="flex flex-col justify-between gap-3" x-data="dropdown">
-    
-        <!-- <div class="w-2/3 md:w-1/4 mx-auto flex flex-col items-center space-y-4"> -->
+    <div class="flex flex-col justify-between gap-7" x-data="dropdown">
         <div class="w-4/5 md:w-1/4 mx-auto flex flex-col items-center justify-between gap-5 py-3 rounded-lg bg-white border-[#A51931] shadow-lg">
             <div class="grid grid-cols-2 w-2/3 mx-auto items-center">
                 <div class="">
                     <label for="word_count" class="sr-only">Number of Consonants</label>
-                    <input type="number" name="word_count" id="" class="w-2/3 rounded border-2 border-solid border-[#A51931] py-1 text-center" x-model="consonant_count">
+                    <input type="number" name="word_count" id="" class="w-2/3 rounded border-2 focus:border-solid focus:outline-none focus:border-[#2D2A4A] focus:shadow-lg py-1 text-center" x-model="consonant_count">
                 </div>
                 <fieldset class="flex items-center space-x-4 p-2">
                     <legend class="sr-only">Shuffle Options</legend>
                     <label class="flex items-center hover:cursor-pointer" for="random">
                         <input id="random" class="mr-1" type="checkbox" value="random" x-model="selected_shuffle"> Random
                     </label>
-                    <!-- <label for="alpha" class="flex items-center">
-                        <input id="alpha" class="mr-1" type="radio" value="alpha" x-model="selected_shuffle"> Alphabetical
-                    </label> -->
                 </fieldset>
             </div>
-            <!-- <button class="py-1 px-5 rounded bg-white border-2 border-[#A51931] text-[#2D2A4A] text-center" @click="generate">Generate</button> -->
             <button class="py-1 px-5 rounded bg-[#2D2A4A] text-white text-center" @click="generate">Generate</button>
             
         </div>
@@ -75,7 +68,8 @@
         x-transition:leave="transition duration-500"
         x-transition:leave-start="opacity-100 transform scale-100"
         x-transition:leave-end="opacity-0 transform scale-98"
-        class="flex flex-col justify-between items-center mx-auto rounded-lg p-2 w-4/5 md:w-1/4 border-2 border-solid border-[#A51931] min-h-[400px] bg-white shadow-lg">
+        class="flex flex-col justify-between items-center mx-auto rounded-lg p-2 w-4/5 md:w-1/4  border border-[#A51931] min-h-[400px] bg-white">
+        <!-- bg-[#2D2A4A] [#A51931]-->
                 <p 
                 style="transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);"
                 x-show="!loading"
@@ -89,7 +83,7 @@
                 <div class="tabular-nums w-full p-2 flex items-center justify-between rounded border-2" :class="is_correct ? 'border-green-300 bg-green-100' : ' border-red-300 bg-red-100' " x-show="show_result">
                     <p class="text-lg" :class="is_correct ? 'text-green-600' : 'text-red-500' ">
                         <span x-show="is_correct">Correct</span>
-                        <span x-show="!is_correct">The correct answer is <span x-text="correct_answer"></span>.</span>
+                        <span x-show="!is_correct">Answer: <span x-text="correct_answer"></span></span>
                     </p>
                     <p class="text-2xl">
                         <i x-show="is_correct" class="text-green-600 fa-regular fa-circle-check"></i>
@@ -230,7 +224,7 @@
                     this.random_num.push(ran)
                 }
 
-                this.toggleButton()
+                // this.toggleButton()
                 this.flash = this.sliced_consonants[ran]
 
                 this.loading = false
@@ -281,9 +275,11 @@
                 // play audio file
                 // assign index to answer
                 // enable check answer btn
-                this.selected_border_style = 'border-[#2D2A4A]'
-                this.enable_chk_ans_btn = true
-                this.selected_answer = index
+                if (!this.show_result) {
+                    this.selected_border_style = 'border-[#2D2A4A]'
+                    this.enable_chk_ans_btn = true
+                    this.selected_answer = index
+                }
             },
             checkAnswer() {
                 // check the selected answer
@@ -299,7 +295,14 @@
                 }
                 this.correct_border_style = 'border-green-500'
                 this.show_result = true
-                this.show_next_btn = true
+
+                console.log(this.random_num.length < this.sliced_consonants.length)
+                if (this.random_num.length < this.sliced_consonants.length) {
+                    // this.show_restart = false;
+                    // setTimeout(() => {
+                        this.show_next_btn = true;
+                    // }, 300);
+                }
             },
             next() {
                 console.log('first')
