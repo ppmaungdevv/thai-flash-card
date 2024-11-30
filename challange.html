@@ -57,8 +57,6 @@
                 </fieldset>
             </div>
             <button class="py-1 px-5 rounded bg-[#2D2A4A] text-white text-center" @click="generate">Generate</button>
-            <!-- <button class="py-1 px-5 rounded bg-[#2D2A4A] text-white text-center" @click="generateFromAPI">Generate</button> -->
-            
             
         </div>
         
@@ -93,7 +91,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-5 w-full">
                     <template x-for="(choice, index) in choices">
-                        <div class="flex items-center justify-center p-4 rounded border-2 border-solid hover:cursor-pointer relative" :class="[index == selected_answer.index ? selected_border_style : '', show_result && (index == correct_answer.index) ? correct_border_style : '' ]" @click.stop="speakAnswer(choice, index)">
+                        <div class="flex items-center justify-center p-4 rounded border-2 border-solid hover:cursor-pointer relative" :class="[index == selected_answer.index ? selected_border_style : '', show_result && (index == correct_answer.index) ? correct_border_style : '' ]" @click.stop="selectAnswer(choice, index)">
                              <!-- if click speak and select answer -->
                             <div class="top-0 left-0 absolute ml-1">
                                 <p class="p-1" x-text="(index+1) + '.'"></p>
@@ -124,10 +122,6 @@
                 class="flex justify-center rounded w-full p-3" :class=" enable_chk_ans_btn ? 'bg-[#2D2A4A] text-white' : 'bg-[#B3B3CC] text-gray-400' " @click.stop="checkAnswer()">Check Answer</button>
         </div>
         <a href="index.html" class="text-2xl p-1"><i class="fa-solid fa-house"></i></a>
-        <span x-text="sliced_consonants"></span>
-        <span x-text="question"></span>
-        <span x-text="current_page"></span>
-        <button @click.stop="clickNext()">Next</button>
     </div>
 </body>
 <script>
@@ -136,22 +130,15 @@
     };
     document.addEventListener('alpine:init', () => {
         Alpine.data('dropdown', () => ({
-            thai_consonants: [],
             consonant_count: 3,
-            show_next: true,
-            show_restart: false,
             show_cards: false,
             loading: false,
-            flash: {},
-            random_num: [],
-            is_random: false,
+            is_random: true,
             sliced_consonants: [],
-            answer: null,
             show_result: false,
             enable_chk_ans_btn: false,
             show_next_btn: false,
             selected_answer: null,
-            // correct_answer: 4,
             is_correct: null,
             selected_border_style: '',
             correct_border_style: '',
@@ -160,64 +147,13 @@
             selected_box: null,
             current_page: 0,
             correct_answer: null,
-            async init() {
-                try {
-                    const resp = await fetch("./thai.json")
-                    const { thai_consonants } = await resp.json()
-                    this.thai_consonants = thai_consonants
-                    console.log(this.thai_consonants)
-                } catch (error) {
-                    console.error(error)
-                }
+            hosts: {
+                local: "http://127.0.0.1:5000",
+                server: "https://flash-card-api-6bei.onrender.com"
             },
-            random() {
-                let ran = null;
-                do {
-                    if (this.random_num.length >= this.sliced_consonants.length) {
-                        console.error('All possible values are already in the array. Exiting to avoid infinite loop.');
-                        break; // Break to avoid infinite loop
-                    }
-                    ran = Math.floor(Math.random() * (this.sliced_consonants.length))
-
-                } while (this.random_num.includes(ran));
-                
-                if (this.random_num.length < this.sliced_consonants.length) {
-                    this.random_num.push(ran)
-                }
-
-                // this.toggleButton()
-                this.flash = this.sliced_consonants[ran]
-
-                this.loading = false
-                this.show_cards = true
-
-            },
-            toggleButton() {
-                if (this.random_num.length < this.sliced_consonants.length) {
-                    this.show_restart = false;
-                    setTimeout(() => {
-                        this.show_next = true;
-                    }, 300);
-                }
-                if (this.random_num.length >= this.sliced_consonants.length) {
-                    this.show_next = false
-                    setTimeout(() => {
-                        this.show_restart = true;
-                    }, 300);
-                }
-            },
-            changeCount() {
-                this.restart()
-            },
-            clickNext() {
+            async clickNext() {
                 this.current_page ++
                 this.question = this.sliced_consonants[this.current_page]
-                // request text_to_speak by using the current question`
-
-            },
-            reset_everything() {
-                this.selected_answer = ''
-                this.show_result = false
             },
             resetPage() {
                 this.current_page = 0
@@ -225,12 +161,13 @@
             async generate() {
                 try {
                     this.resetPage()
-                    this.reset_everything()
+                    this.reset()
                     this.show_cards = false
-                    this.random_num = []
                     this.sliced_consonants = []
 
-                    url = "http://127.0.0.1:5000/generate_quiz"
+                    // const url = this.hosts.local + "/generate_quiz"
+                    const url = this.hosts.server + "/generate_quiz"
+
                     // consonant_count, is_random
                     const req_data = {
                         method: "POST",
@@ -238,7 +175,7 @@
                             "Content-Type": "application/json"
                         },
                         body: JSON.stringify({
-                            consonant_count: this.consonant_count,
+                            consonant_count: Number(this.consonant_count),
                             is_random: this.is_random
                         })
                     }
@@ -248,7 +185,7 @@
                     this.sliced_consonants = generated_consonants
                     this.question = quiz.question
                     this.choices = quiz.choices
-                    // this.correct_answer = this.choices.find((ele, index) => ele.word == this.question)
+
                     this.assignCorrectAnswer()
 
                     this.loading = false
@@ -268,38 +205,80 @@
                     ...this.choices[index]
                   }  
                 } else this.correct_answer = null
-
-                console.log('asgsags', this.correct_answer)
             },
-            speakAnswer(choice, index) {
-                // play audio file
-                console.log(choice.pronuncation)
-                // assign index to answer
-                // enable check answer btn
+            async fetchAudio(text){
+                try {
+                    const cache_key = `audio_${text}`
+                    const cached_audio = localStorage.getItem(cache_key)
+                    if (cached_audio) {
+                        const byte_characters = atob(cached_audio)
+                        const byte_numbers = new Array(byte_characters.length)
+                        for (let i = 0; i < byte_characters.length; i++) {
+                            byte_numbers[i] = byte_characters.charCodeAt(i)
+                        }
+                        const byteArray = new Uint8Array(byte_numbers)
+                        return new Blob([byteArray], { type: 'audio/mpeg' })
+                    }
+
+                    const req_data = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({text})
+                    }
+                    
+                    // const url = this.hosts.local + "/test"
+                    const url = this.hosts.server + "/test" // hosted on render
+                    
+                    const resp = await fetch(url, req_data)
+
+                    const blob = await resp.blob()
+
+                    const file_reader = new FileReader()
+                    file_reader.readAsDataURL(blob)
+                    file_reader.onloadend = function() {
+                        const base64data = file_reader.result.split(",")[1]; // Remove the prefix
+                        localStorage.setItem(cache_key, base64data); // Cache in localStorage
+                    }
+
+                    return blob
+                } catch (error) {
+                    console.error("There was an error!", error)
+                }
+
+            },
+            async playAudio(text){
+                const audio_blob = await this.fetchAudio(text)
+                const audio_url = URL.createObjectURL(audio_blob);
+                const audio = new Audio(audio_url);
+                audio.play();
+            },
+            async selectAnswer(choice, index) {
+                // play selected consonant audio
+                // set border style for selected
+                // set selected answer
+
+                this.playAudio(choice.pronuncation)
+
                 if (!this.show_result) {
                     this.selected_border_style = 'border-[#2D2A4A]'
                     this.enable_chk_ans_btn = true
-                    // this.selected_answer = choice.word
                     this.selected_answer = {
                         index,
                         ...choice
                     }
-                    console.log(this.selected_answer)
                 }
             },
             checkAnswer() {
                 // check the selected answer
+                // play correct answer audio file
                 // show the right/wrong result on top
                 // show next btn
+
                 this.enable_chk_ans_btn = false
-                // if (this.correct_answer == this.selected_answer) {
-                //     this.is_correct = true
-                //     this.selected_border_style = 'border-green-300'
-                // } else {
-                //     this.is_correct = false
-                //     this.selected_border_style = 'border-red-500'
-                // }
-                console.log(this.question, this.selected_answer)
+                
+                this.playAudio("The answer is " + this.correct_answer.pronuncation)
 
                 if (this.question == this.selected_answer.word) {
                     this.is_correct = true
@@ -311,17 +290,11 @@
                 this.correct_border_style = 'border-green-500'
                 this.show_result = true
 
-                // if (this.random_num.length < this.sliced_consonants.length) {
-                    // this.show_restart = false;
-                    // setTimeout(() => {
-                console.log(this.current_page, this.sliced_consonants.length)
                 if (this.current_page < (this.sliced_consonants.length - 1)) {
                         this.show_next_btn = true;
-                    // }, 300);
                 }
             },
-            next() {
-                console.log('first')
+            reset() {
                 this.loading = true
                 this.show_result = false
                 this.enable_chk_ans_btn = false
@@ -330,38 +303,44 @@
                 this.is_correct = null
                 this.selected_border_style = ''
                 this.correct_border_style = ''
-                // 
-                // if (this.current_page ) {
+                this.correct_answer = {}
+            },
+            async next() {
+                try {
                     
-                // }
-                this.current_page += 1
-                this.question = this.sliced_consonants[this.current_page]
-                // get quiz API
-                this.loading = false
-                // this.reset_everything()
-                // this.show_cards = false
-            },
-            restart() {
-                this.loading = true
-                this.random_num = []
-                setTimeout(() => {
-                    this.random();
-                }, 300);
-            },
-            readText(t) {
-                if (!('speechSynthesis' in window)) {
-                    console.error("Web Speech API not supported in this browser.");
-                    return;
+                    // clear local storage
+                    localStorage.clear()
+                    this.reset()
+                    this.current_page += 1
+                    
+                    this.question = this.sliced_consonants[this.current_page]
+                    // get quiz API
+
+                    // url = this.hosts.local + "/get_multiple_choice"
+                    url = this.hosts.server + "/get_multiple_choice"
+
+                    const req_data = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "question_consonant": this.question
+                        })
+                    }
+                        
+                    const resp = await fetch(url, req_data)
+                    const { question_consonant, choices } = await resp.json()
+                    
+                    // this.question = question_consonant
+                    this.choices = choices
+                    this.assignCorrectAnswer()
+    
+                    this.loading = false
+                } catch (error) {
+                    console.error(error)
                 }
-                
-                const text = this.$refs.text_to_read.textContent
-                const speech = new SpeechSynthesisUtterance(t);
-
-                speech.lang = 'th-TH';
-
-                // Speak the text
-                window.speechSynthesis.speak(speech);
-            }
+            },
         }))
     })
 </script>
