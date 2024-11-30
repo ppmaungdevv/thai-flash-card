@@ -25,6 +25,7 @@ Here's a brief overview of the technologies I used to build this site:
 ### Open Source
 
 I believe in open-source software! All of the code for this project is available for free. Feel free to download, inspect, and contribute to the project.
+You can find API in [flash-card-api](https://github.com/ppmaungdevv/flash-card-api)
 
 ### Contact
 
