@@ -150,6 +150,10 @@
             last_page: 0,
             flash: {},
             show_modal: false,
+            hosts: {
+                local: "http://127.0.0.1:5000",
+                server: "https://flash-card-api-6bei.onrender.com"
+            },
             reset() {
                 this.sliced_consonants = []
                 this.flash = {}
@@ -214,11 +218,10 @@
                         body: JSON.stringify({text})
                     }
                     
-                    const local_link = "http://127.0.0.1:5000/test"
-                    const api_link = "https://flash-card-api-6bei.onrender.com/test" // hosted on render
+                    // const url = this.hosts.local + "/test"
+                    const url = this.hosts.server + "/test" // hosted on render
                     
-                    // const resp = await fetch(local_link, req_data)
-                    const resp = await fetch(api_link, req_data)
+                    const resp = await fetch(url, req_data)
 
                     const blob = await resp.blob()
 
@@ -244,32 +247,6 @@
                 const audio = new Audio(audioUrl);
                 audio.play();
 
-                // url = window.location.href
-                // local_link = "http://127.0.0.1:5000/test"
-                // ngrok_link = "https://2286-171-6-89-213.ngrok-free.app"
-                
-                // fetch(ngrok_link + '/test', {
-                // fetch(local_link, {
-
-                    
-                //     method: "POST",
-                //     headers: {
-                //         "Content-Type": "application/json"
-                //     },
-                //     body: JSON.stringify({text})
-                // })
-                // .then(response => {
-                //     if (!response.ok) throw new Error("Network response was not OK");
-                //     console.log(response.body)
-                //     return response.blob();
-                // })
-                // .then(blob => {
-                //     const audioUrl = URL.createObjectURL(blob);
-                //     console.log('audio', audioUrl)
-                //     const audio = new Audio(audioUrl);
-                //     audio.play();
-                // })
-                // .catch(error => console.error("There was an error!", error));
             },
             thai_consonants: [
                 { letter: 'ก', pronunciation: 'กอไก่' },
