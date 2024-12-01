@@ -43,11 +43,11 @@
 <body class="bg-[#fbfcf8] text-[#2D2A4A] text-center">
     <h3 class="text-4xl p-5">Flash Cards</h3>
     <div class="flex flex-col justify-between gap-7" x-data="dropdown">
-        <div class="w-4/5 md:w-1/4 mx-auto flex flex-col items-center justify-between gap-5 py-3 rounded-lg bg-white border-[#A51931] shadow-lg">
+        <div class="w-4/5 md:w-1/4 mx-auto flex flex-col items-center gap-2 py-3 rounded-lg bg-white border-[#A51931] shadow-lg">
             <div class="grid grid-cols-2 w-2/3 mx-auto items-center">
                 <div class="">
                     <label for="word_count" class="sr-only">Number of Consonants</label>
-                    <input type="number" name="word_count" id="" class="w-2/3 rounded border-2 focus:border-solid focus:outline-none focus:border-[#2D2A4A] focus:shadow-lg py-1 text-center" x-model="consonant_count">
+                    <input type="number" name="word_count" id="" class="w-2/3 rounded border-2 focus:border-solid focus:outline-none focus:border-[#2D2A4A] focus:shadow-lg py-1 text-center" @input="reset()" x-model="consonant_count">
                 </div>
                 <fieldset class="flex items-center space-x-4 p-2">
                     <legend class="sr-only">Shuffle Options</legend>
@@ -68,57 +68,63 @@
         x-transition:leave="transition duration-500"
         x-transition:leave-start="opacity-100 transform scale-100"
         x-transition:leave-end="opacity-0 transform scale-98"
-        class="flex flex-col justify-between items-center mx-auto rounded-lg p-2 w-4/5 md:w-1/4  border border-[#A51931] min-h-[400px] bg-white">
-                <p 
-                style="transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);"
-                x-show="!loading"
-                x-transition:enter="transition duration-500"
-                x-transition:enter-start="opacity-0 transform scale-98"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                x-transition:leave="transition duration-500"
-                x-transition:leave-start="opacity-100 transform scale-100"
-                x-transition:leave-end="opacity-0 transform scale-98"
-                class="text-7xl" id="text-to-read" x-ref="text_to_read" x-text="question"></p>
-                <div class="tabular-nums w-full p-2 flex items-center justify-between rounded border-2" :class="is_correct ? 'border-green-300 bg-green-100' : ' border-red-300 bg-red-100' " x-show="show_result">
-                    <p class="text-lg" :class="is_correct ? 'text-green-600' : 'text-red-500' ">
-                        <span x-show="is_correct">Correct</span>
-                        <span x-show="!is_correct">Answer: <span x-text="correct_answer ? correct_answer.index + 1 : ''"></span></span>
-                    </p>
-                    <p class="text-2xl">
-                        <i x-show="is_correct" class="text-green-600 fa-regular fa-circle-check"></i>
-                        <i x-show="!is_correct" class="text-red-500 fa-regular fa-circle-xmark"></i>
-                    </p>
+        class="flex flex-col justify-between items-center mx-auto rounded-lg p-2 w-4/5 md:w-1/4  border border-[#A51931] min-h-[420px] bg-white">
+            <div class="w-full relative text-sm">
+                
+                <div class="relative tabular-nums w-full">
+                    <p class="absoulte right-0 top-0 text-right tabular-nums">Score: <span x-text="score"></span>/<span x-text="consonant_count"></span></p>
+                    <p 
+                    style="transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);"
+                    x-show="!loading"
+                    x-transition:enter="transition duration-500"
+                    x-transition:enter-start="opacity-0 transform scale-98"
+                    x-transition:enter-end="opacity-100 transform scale-100"
+                    x-transition:leave="transition duration-500"
+                    x-transition:leave-start="opacity-100 transform scale-100"
+                    x-transition:leave-end="opacity-0 transform scale-98"
+                    class="text-7xl" id="text-to-read" x-ref="text_to_read" x-text="question"></p>
                 </div>
-                <div class="grid grid-cols-2 gap-5 w-full">
-                    <template x-for="(choice, index) in choices">
-                        <div class="flex items-center justify-center p-4 rounded border-2 border-solid hover:cursor-pointer relative" :class="[index == selected_answer.index ? selected_border_style : '', show_result && (index == correct_answer.index) ? correct_border_style : '' ]" @click.stop="selectAnswer(choice, index)">
-                             <!-- if click speak and select answer -->
-                            <div class="top-0 left-0 absolute ml-1">
-                                <p class="p-1" x-text="(index+1) + '.'"></p>
-                            </div>
-                            <p x-show="!loading" class="p-1 text-2xl" id="read-btn" ><i class="fas fa-volume-up"></i></p>
+            </div>
+            <div class="tabular-nums w-full p-2 flex items-center justify-between rounded border-2" :class="is_correct ? 'border-green-300 bg-green-100' : ' border-red-300 bg-red-100' " x-show="show_result">
+                <p class="text-lg" :class="is_correct ? 'text-green-600' : 'text-red-500' ">
+                    <span x-show="is_correct">Correct</span>
+                    <span x-show="!is_correct">Answer: <span x-text="correct_answer ? correct_answer.index + 1 : ''"></span></span>
+                </p>
+                <p class="text-2xl">
+                    <i x-show="is_correct" class="text-green-600 fa-regular fa-circle-check"></i>
+                    <i x-show="!is_correct" class="text-red-500 fa-regular fa-circle-xmark"></i>
+                </p>
+            </div>
+            <div class="grid grid-cols-2 gap-5 w-full">
+                <template x-for="(choice, index) in choices">
+                    <div class="flex items-center justify-center p-4 rounded border-2 border-solid hover:cursor-pointer relative" :class="[index == selected_answer.index ? selected_border_style : '', show_result && (index == correct_answer.index) ? correct_border_style : '' ]" @click.stop="selectAnswer(choice, index)">
+                            <!-- if click speak and select answer -->
+                        <div class="top-0 left-0 absolute ml-1">
+                            <p class="p-1" x-text="(index+1) + '.'"></p>
                         </div>
-                    </template>
-                </div>
-                <template x-if="!enable_chk_ans_btn">
-                    <div class="flex justify-center items-center rounded w-full" :class="(!enable_chk_ans_btn && !show_next_btn) ? 'p-6' : 'p-1'">
-                        <button 
-                        x-show="show_next_btn"
-                        x-transition:enter="transition duration-500"
-                        x-transition:enter-start="opacity-0 transform scale-98"
-                        x-transition:enter-end="opacity-100 transform scale-100"
-                        x-transition:leave="transition duration-500"
-                        x-transition:leave-start="opacity-100 transform scale-100"
-                        x-transition:leave-end="opacity-0 transform scale-98"
-                        class="flex justify-center items-center rounded py-1 px-3 border-2 border-[#2D2A4A] hover:cursor-pointer" @click.stop="next()">Next<span class="ml-1"><i class="fa-solid fa-angle-right"></i></span></button>
+                        <p x-show="!loading" class="p-1 text-2xl" id="read-btn" ><i class="fas fa-volume-up"></i></p>
                     </div>
                 </template>
+            </div>
+            <template x-if="!enable_chk_ans_btn">
+                <div class="flex justify-center items-center rounded w-full" :class="(!enable_chk_ans_btn && !show_next_btn) ? 'p-6' : 'p-1'">
                     <button 
-                x-show="enable_chk_ans_btn"
-                x-transition:enter="transition duration-500"
-                x-transition:enter-start="opacity-0 transform scale-98"
-                x-transition:enter-end="opacity-100 transform scale-100"
-                class="flex justify-center rounded w-full p-3" :class=" enable_chk_ans_btn ? 'bg-[#2D2A4A] text-white' : 'bg-[#B3B3CC] text-gray-400' " @click.stop="checkAnswer()">Check Answer</button>
+                    x-show="show_next_btn"
+                    x-transition:enter="transition duration-500"
+                    x-transition:enter-start="opacity-0 transform scale-98"
+                    x-transition:enter-end="opacity-100 transform scale-100"
+                    x-transition:leave="transition duration-500"
+                    x-transition:leave-start="opacity-100 transform scale-100"
+                    x-transition:leave-end="opacity-0 transform scale-98"
+                    class="flex justify-center items-center rounded py-1 px-3 border-2 border-[#2D2A4A] hover:cursor-pointer" @click.stop="next()">Next<span class="ml-1"><i class="fa-solid fa-angle-right"></i></span></button>
+                </div>
+            </template>
+            <button 
+            x-show="enable_chk_ans_btn"
+            x-transition:enter="transition duration-500"
+            x-transition:enter-start="opacity-0 transform scale-98"
+            x-transition:enter-end="opacity-100 transform scale-100"
+            class="flex justify-center rounded w-full p-3" :class=" enable_chk_ans_btn ? 'bg-[#2D2A4A] text-white' : 'bg-[#B3B3CC] text-gray-400' " @click.stop="checkAnswer()">Check Answer</button>
         </div>
         <a href="index.html" class="text-2xl p-1"><i class="fa-solid fa-house"></i></a>
     </div>
@@ -146,13 +152,10 @@
             selected_box: null,
             current_page: 0,
             correct_answer: null,
+            score: 0,
             hosts: {
                 local: "http://127.0.0.1:5000",
                 server: "https://flash-card-api-6bei.onrender.com"
-            },
-            async clickNext() {
-                this.current_page ++
-                this.question = this.sliced_consonants[this.current_page]
             },
             resetPage() {
                 this.current_page = 0
@@ -161,11 +164,13 @@
                 try {
                     this.resetPage()
                     this.reset()
+                    this.score = 0
                     this.show_cards = false
                     this.sliced_consonants = []
 
-                    // const url = this.hosts.local + "/generate_quiz"
-                    const url = this.hosts.server + "/generate_quiz"
+                    const url = this.hosts.local + "/generate_quiz"
+                    // const url = "https://9917-171-7-17-116.ngrok-free.app/generate_quiz"
+                    // const url = this.hosts.server + "/generate_quiz"
 
                     // consonant_count, is_random
                     const req_data = {
@@ -282,6 +287,7 @@
                 if (this.question == this.selected_answer.word) {
                     this.is_correct = true
                     this.selected_border_style = 'border-green-500'
+                    this.score += 1
                 } else {
                     this.is_correct = false
                     this.selected_border_style = 'border-red-500'
