@@ -102,7 +102,7 @@
                     <!-- letter -->
                     <p class="text-7xl"><span x-ref="text_to_read" x-text="flash.letter"></span></p>
                     <!-- speak button -->
-                    <button class="p-1 text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up"></i></button>
+                    <button class="p-1 text-2xl" id="read-btn" x-on:click="readText(flash.pronunciation)"><i class="fas fa-volume-up" :class="bounce_btn ? 'fa-beat' : ''"></i></button>
                     <!-- how to pronounce -->
                     <p class="text-lg"><span x-text="flash.instructions"></span></p>
                     
@@ -150,6 +150,8 @@
             last_page: 0,
             flash: {},
             show_modal: false,
+            bounce_btn: false,
+            current_audio: null,
             hosts: {
                 local: "http://127.0.0.1:5000",
                 server: "https://flash-card-api-6bei.onrender.com"
@@ -175,21 +177,26 @@
                 this.flash = this.sliced_consonants[0]
                 this.last_page = this.sliced_consonants.length - 1
                 this.show_modal = true
+
+                this.readText(this.flash.pronunciation)
             },
             revise(index) {
                 this.sliced_consonants = this.thai_consonants.slice(0, (index - 1) * 4)
                 this.flash = this.sliced_consonants[0]
                 this.last_page = this.sliced_consonants.length - 1
                 this.show_modal = true
-                console.log((index - 1) * 4, this.sliced_consonants)
+
+                this.readText(this.flash.pronunciation)
             },
             next() {
                 this.current_page++
                 this.flash = this.sliced_consonants[this.current_page]
+                this.readText(this.flash.pronunciation)
             },
             previous() {
                 this.current_page--
                 this.flash = this.sliced_consonants[this.current_page]
+                this.readText(this.flash.pronunciation)
             },
             goBack() {
                 this.reset()
@@ -241,60 +248,23 @@
             },
 
             async readText(text) {
+                this.bounce_btn = true
+                
+                if (this.current_audio) {
+                    this.current_audio.pause()
+                    this.current_audio.time = 0
+                }
+
                 const blob = await this.fetchAudio(text)
 
                 const audioUrl = URL.createObjectURL(blob);
-                const audio = new Audio(audioUrl);
-                audio.play();
+                this.current_audio = new Audio(audioUrl);
+                this.current_audio.play();
+                this.current_audio.addEventListener('ended', () => {
+                    this.bounce_btn = false
+                });
 
             },
-            thai_consonants: [
-                { letter: 'ก', pronunciation: 'กอไก่' },
-                { letter: 'ข', pronunciation: 'ขอไข่' },
-                { letter: 'ฃ', pronunciation: 'ขอฃวด' },
-                { letter: 'ค', pronunciation: 'คอควาย' },
-                { letter: 'ฅ', pronunciation: 'คอคน' },
-                { letter: 'ฆ', pronunciation: 'คอระฆัง' },
-                { letter: 'ง', pronunciation: 'งองู' },
-                { letter: 'จ', pronunciation: 'จอจาน' },
-                { letter: 'ฉ', pronunciation: 'ฉอฉิ่ง' },
-                { letter: 'ช', pronunciation: 'ชอช้าง' },
-                { letter: 'ซ', pronunciation: 'ซอโซ่' },
-                { letter: 'ฌ', pronunciation: 'ฌอเฌอ' },
-                { letter: 'ญ', pronunciation: 'ญอหญิง' },
-                { letter: 'ฎ', pronunciation: 'ฎอชฎา' },
-                { letter: 'ฏ', pronunciation: 'ฏอปฏัก' },
-                { letter: 'ฐ', pronunciation: 'ฐอฐาน' },
-                { letter: 'ฑ', pronunciation: 'ฑอมณโฑ' },
-                { letter: 'ฒ', pronunciation: 'ฒอผู้เฒ่า' },
-                { letter: 'ณ', pronunciation: 'ณอเณร' },
-                { letter: 'ด', pronunciation: 'ดอเด็ก' },
-                { letter: 'ต', pronunciation: 'ตอเต่า' },
-                { letter: 'ถ', pronunciation: 'ถอถุง' },
-                { letter: 'ท', pronunciation: 'ทอทหาร' },
-                { letter: 'ธ', pronunciation: 'ธอธง' },
-                { letter: 'น', pronunciation: 'นอหนู' },
-                { letter: 'บ', pronunciation: 'บอใบไม้' },
-                { letter: 'ป', pronunciation: 'ปอปลา' },
-                { letter: 'ผ', pronunciation: 'ผอผึ้ง' },
-                { letter: 'ฝ', pronunciation: 'ฝอฝา' },
-                { letter: 'พ', pronunciation: 'พอพาน' },
-                { letter: 'ฟ', pronunciation: 'ฟอฟัน' },
-                { letter: 'ภ', pronunciation: 'ภอสำเภา' },
-                { letter: 'ม', pronunciation: 'มอม้า' },
-                { letter: 'ย', pronunciation: 'ยอยักษ์' },
-                { letter: 'ร', pronunciation: 'รอเรือ' },
-                { letter: 'ล', pronunciation: 'ลอลิง' },
-                { letter: 'ว', pronunciation: 'วอแหวน' },
-                { letter: 'ศ', pronunciation: 'ศอศาลา' },
-                { letter: 'ษ', pronunciation: 'ษอฤๅษี' },
-                { letter: 'ส', pronunciation: 'สอเสือ' },
-                { letter: 'ห', pronunciation: 'หอหีบ' },
-                { letter: 'ฬ', pronunciation: 'ฬอจุฬา' },
-                { letter: 'อ', pronunciation: 'อออ่าง' },
-                { letter: 'ฮ', pronunciation: 'ฮอนกฮูก' }
-            ],
-            
         }))
     })
 </script>
