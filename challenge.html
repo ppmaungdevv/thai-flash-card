@@ -97,12 +97,17 @@
             </div>
             <div class="grid grid-cols-2 gap-5 w-full">
                 <template x-for="(choice, index) in choices">
-                    <div class="flex items-center justify-center p-4 rounded border-2 border-solid hover:cursor-pointer relative" :class="[index == selected_answer.index ? selected_border_style : '', show_result && (index == correct_answer.index) ? correct_border_style : '' ]" @click.stop="selectAnswer(choice, index)">
-                            <!-- if click speak and select answer -->
+                    <div 
+                    class="flex items-center justify-center p-4 rounded border-2 border-solid hover:cursor-pointer relative" 
+                    :class="[
+                        index == selected_answer.index ? selected_border_style : '',
+                        show_result && (index == correct_answer.index) ? correct_border_style : ''
+                    ]" 
+                    @click.stop="selectAnswer(choice, index)">
                         <div class="top-0 left-0 absolute ml-1">
                             <p class="p-1" x-text="(index+1) + '.'"></p>
                         </div>
-                        <p x-show="!loading" class="p-1 text-2xl" id="read-btn" ><i class="fas fa-volume-up"></i></p>
+                        <p x-show="!loading" class="p-1 text-2xl" id="read-btn" ><i class="fas fa-volume-up" :class="(clicked_index === index && bounce_btn) ? 'fa-beat' : '' "></i></p>
                     </div>
                 </template>
             </div>
@@ -124,7 +129,7 @@
             x-transition:enter="transition duration-500"
             x-transition:enter-start="opacity-0 transform scale-98"
             x-transition:enter-end="opacity-100 transform scale-100"
-            class="flex justify-center rounded w-full p-3" :class=" enable_chk_ans_btn ? 'bg-[#2D2A4A] text-white' : 'bg-[#B3B3CC] text-gray-400' " @click.stop="checkAnswer()">Check Answer</button>
+            class="flex justify-center rounded w-full p-3" :class="enable_chk_ans_btn ? 'bg-[#2D2A4A] text-white' : 'bg-[#B3B3CC] text-gray-400' " @click.stop="checkAnswer()">Check Answer</button>
         </div>
         <a href="index.html" class="text-2xl p-1"><i class="fa-solid fa-house"></i></a>
     </div>
@@ -149,10 +154,12 @@
             correct_border_style: '',
             question: '',
             choices: [],
-            selected_box: null,
+            clicked_index: null,
             current_page: 0,
             correct_answer: null,
             score: 0,
+            bounce_btn: false,
+            current_audio: null,
             hosts: {
                 local: "http://127.0.0.1:5000",
                 server: "https://flash-card-api-6bei.onrender.com"
@@ -252,19 +259,36 @@
                 }
 
             },
-            async playAudio(text){
+            showNextBtn() {
+                if (this.current_page < (this.sliced_consonants.length - 1)) {
+                        this.show_next_btn = true;
+                }
+            },
+            async playAudio(text, index){
+                if (this.current_audio) {
+                    this.current_audio.pause()
+                    this.current_audio.time = 0
+                }
+
+                this.bounce_btn = true
+                this.clicked_index = index
+
                 const audio_blob = await this.fetchAudio(text)
                 const audio_url = URL.createObjectURL(audio_blob);
-                const audio = new Audio(audio_url);
-                audio.play();
+                this.current_audio = new Audio(audio_url)
+                this.current_audio.play()
+                this.current_audio.addEventListener('ended', () => {
+                    // stop btn bouncing and show next btn
+                    this.bounce_btn = false
+                    if (this.show_result) {
+                        this.showNextBtn()
+                    }
+                });
             },
             async selectAnswer(choice, index) {
                 // play selected consonant audio
                 // set border style for selected
                 // set selected answer
-
-                this.playAudio(choice.pronuncation)
-
                 if (!this.show_result) {
                     this.selected_border_style = 'border-[#2D2A4A]'
                     this.enable_chk_ans_btn = true
@@ -273,16 +297,16 @@
                         ...choice
                     }
                 }
+                await this.playAudio(choice.pronuncation, index)
+
             },
-            checkAnswer() {
+            async checkAnswer() {
                 // check the selected answer
                 // play correct answer audio file
                 // show the right/wrong result on top
                 // show next btn
 
                 this.enable_chk_ans_btn = false
-                
-                this.playAudio("The answer is " + this.correct_answer.pronuncation)
 
                 if (this.question == this.selected_answer.word) {
                     this.is_correct = true
@@ -295,9 +319,7 @@
                 this.correct_border_style = 'border-green-500'
                 this.show_result = true
 
-                if (this.current_page < (this.sliced_consonants.length - 1)) {
-                        this.show_next_btn = true;
-                }
+                await this.playAudio("The answer is " + this.correct_answer.pronuncation, this.correct_answer.index)
             },
             reset() {
                 this.loading = true
@@ -309,6 +331,7 @@
                 this.selected_border_style = ''
                 this.correct_border_style = ''
                 this.correct_answer = {}
+                this.clicked_index = null
             },
             async next() {
                 try {
