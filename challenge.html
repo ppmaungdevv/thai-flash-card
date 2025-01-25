@@ -43,18 +43,46 @@
 <body class="bg-[#fbfcf8] text-[#2D2A4A] text-center">
     <h3 class="text-4xl p-5">Flash Cards</h3>
     <div class="flex flex-col justify-between gap-7" x-data="dropdown">
-        <div class="w-4/5 md:w-1/4 mx-auto flex flex-col items-center gap-2 py-3 rounded-lg bg-white border-[#A51931] shadow-lg">
-            <div class="grid grid-cols-2 w-2/3 mx-auto items-center">
-                <div class="">
-                    <label for="word_count" class="sr-only">Number of Consonants</label>
-                    <input type="number" name="word_count" id="" class="w-2/3 rounded border-2 focus:border-solid focus:outline-none focus:border-[#2D2A4A] focus:shadow-lg py-1 text-center" @input="reset()" x-model="consonant_count">
+        <div class="w-full md:w-2/5 mx-auto flex flex-col items-center gap-6 py-3 rounded-lg bg-white border-[#A51931] shadow-lg">
+            <div class="flex flex-col md:w-2/3 mx-auto md:items-center">
+                <div class="flex p-2 justify-between items-center">
+                    <label class="" for="word_count">No. of Characters</label>
+                    <div class="w-1/2  flex justify-start">
+                        <input type="number" name="word_count" id="" class="w-2/3 md:w-1/2 rounded border-2 focus:border-solid focus:outline-none focus:border-[#2D2A4A] focus:shadow-lg py-1 px-2 text-center" @input="reset()" x-model="consonant_count">
+                    </div>
                 </div>
-                <fieldset class="flex items-center space-x-4 p-2">
-                    <legend class="sr-only">Shuffle Options</legend>
-                    <label class="flex items-center hover:cursor-pointer" for="random">
-                        <input id="random" class="mr-1" type="checkbox" value="true" x-model="is_random"> Random
-                    </label>
-                </fieldset>
+                <!-- select language -->
+                <div class="flex items-center justify-between  w-full p-2">
+                    <label class="" for="word_count">Select Language</label>
+                    <div class="flex w-1/2 gap-5">
+                        <label class="flex items-center hover:cursor-pointer" for="ja">
+                            <input id="ja" class="mr-1" type="radio" value="ja" x-model="selected_language"> Japanese
+                        </label>
+                        <label class="flex items-center hover:cursor-pointer" for="th">
+                            <input id="th" class="mr-1" type="radio" value="th" x-model="selected_language"> Thai
+                        </label>
+                    </div>
+                </div>
+                <!-- ja kana -->
+                <template x-if="selected_language == 'ja'">
+                    <div class="flex w-full  p-2 items-center justify-end">
+                        <div class="flex flex-col gap-2 w-1/2 justify-end ">
+                            <template x-for="(value, index) in ja_kana">
+                                <label class="flex items-center hover:cursor-pointer" :for="'ja_kana' + index">
+                                    <input :id="'ja_kana' + index" class="mr-1" type="radio" :value="index" x-model="selected_ja_kana"> <span x-text="value"></span>
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+                <div class="flex items-center justify-between  w-full p-2">
+                    <label class="">Shuffle Options</label>
+                    <div class="w-1/2">
+                        <label class="flex  items-center hover:cursor-pointer" for="random">
+                            <input id="random" class="mr-1" type="checkbox" value="true" x-model="is_random"> Random
+                        </label>
+                    </div>
+                </div>
             </div>
             <button class="py-1 px-5 rounded bg-[#2D2A4A] text-white text-center" @click="generate">Generate</button>
             
@@ -160,6 +188,9 @@
             score: 0,
             bounce_btn: false,
             current_audio: null,
+            selected_language: 'ja',
+            ja_kana: ['hiragana', 'katakana'], // , 'mixed'
+            selected_ja_kana: 0,
             hosts: {
                 local: "http://127.0.0.1:5000",
                 // server: "https://flash-card-api-6bei.onrender.com"
@@ -181,15 +212,23 @@
                     const url = this.hosts.server + "/generate_quiz"
 
                     // consonant_count, is_random
+
+                    const req_body = {
+                        consonant_count: Number(this.consonant_count),
+                        is_random: this.is_random,
+                        lang: this.selected_language
+                    }
+
+                    if (this.selected_language == 'ja') {
+                        req_body.ja_kana = this.ja_kana[this.selected_ja_kana]
+                    }
+
                     const req_data = {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify({
-                            consonant_count: Number(this.consonant_count),
-                            is_random: this.is_random
-                        })
+                        body: JSON.stringify(req_body)
                     }
                     
                     const resp = await fetch(url, req_data)
@@ -237,11 +276,11 @@
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify({text})
+                        body: JSON.stringify({text, lang: this.selected_language})
                     }
                     
-                    // const url = this.hosts.local + "/test"
-                    const url = this.hosts.server + "/test" // hosted on render
+                    const url = this.hosts.local + "/test"
+                    // const url = this.hosts.server + "/test" // hosted on render
                     
                     const resp = await fetch(url, req_data)
 
@@ -348,14 +387,21 @@
                     // url = this.hosts.local + "/get_multiple_choice"
                     url = this.hosts.server + "/get_multiple_choice"
 
+                    const req_body = {
+                        question_consonant: this.question,
+                        lang: this.selected_language
+                    }
+
+                    if (this.selected_language == 'ja') {
+                        req_body.ja_kana = this.ja_kana[this.selected_ja_kana]
+                    }
+
                     const req_data = {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json"
                         },
-                        body: JSON.stringify({
-                            "question_consonant": this.question
-                        })
+                        body: JSON.stringify(req_body)
                     }
                         
                     const resp = await fetch(url, req_data)
